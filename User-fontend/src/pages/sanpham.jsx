@@ -1,6 +1,6 @@
 function SanPham() {
   return (
-    <p>Xin chào, đây là trang Home!</p>
+    <p>Xin chào, đây là trang san pham!</p>
   );
 }
 

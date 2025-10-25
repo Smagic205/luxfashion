@@ -4,7 +4,9 @@ import HaGioHang from "../assets/logogiohang.jpeg";
 import LogoChinh from "../assets/LogoChinh.png"
 function Logo(){
     return(
+        <Link  to="/home" >
     <img src={LogoChinh} alt="ha" className=" w-80 h-20"/>
+    </Link>
 );
 }
 function Menu(){
@@ -68,7 +70,7 @@ function GioHang(){
   <Link className="text-white hover:text-red-500 border  px-4 py-2
        border-gray-900 shadow-md rounded-full" 
                 to="/giohang">Giỏ hàng <br />
-                <img src={HaGioHang} alt="Ha" className="w5 h-5 pl-4 "/></Link>
+                <i className="fa-solid fa-cart-shopping mr-2"></i></Link>
     );
 }
 
