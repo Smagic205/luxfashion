@@ -1,5 +1,6 @@
 package com.example.Backend.service;
 
+import com.example.Backend.dto.ProductCardDTO;
 import com.example.Backend.dto.ProductRequestDTO;
 import com.example.Backend.dto.ProductResponseDTO;
 import java.util.List;
@@ -20,4 +21,7 @@ public interface ProductService {
 
     // DELETE (Xoá)
     void deleteProduct(Long id);
+    // * Lấy danh sách sản phẩm nổi bật (đang khuyến mãi) 
+    //  * để hiển thị trên trang chủ.
+    List<ProductCardDTO> getFeaturedProducts();
 }

@@ -42,6 +42,16 @@ public class Product {
 
     @OneToMany(mappedBy = "product_id")
     private List<ProductSize> productSizes;
+    @OneToMany(mappedBy = "product_id")
+    private List<PromotionDetail> promotionDetails;
+    
+    public List<PromotionDetail> getPromotionDetails() {
+        return promotionDetails;
+    }
+
+    public void setPromotionDetails(List<PromotionDetail> promotionDetails) {
+        this.promotionDetails = promotionDetails;
+    }
 
     public Product() {
     }

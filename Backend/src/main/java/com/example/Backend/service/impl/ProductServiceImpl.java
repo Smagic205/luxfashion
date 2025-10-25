@@ -1,5 +1,6 @@
 package com.example.Backend.service.impl;
 
+import com.example.Backend.dto.ProductCardDTO;
 import com.example.Backend.dto.ProductRequestDTO;
 import com.example.Backend.dto.ProductResponseDTO;
 import com.example.Backend.entity.*; // Import tất cả entity
@@ -222,5 +223,93 @@ public class ProductServiceImpl implements ProductService {
 
         // 3. Sau khi xoá hết các con, xoá Product
         productRepository.delete(product);
+    }
+    @Override
+    @Transactional(readOnly = true) // Giao dịch chỉ đọc (nhanh hơn)
+    public List<ProductCardDTO> getFeaturedProducts() {
+        
+        // --- THAY ĐỔI NẰM Ở ĐÂY ---
+        
+        // Code cũ (dùng @Query):
+        // List<Product> featuredProducts = productRepository.findProductsByPromotionStatus("ACTIVE");
+        
+        // Code MỚI (dùng Derived Query Method):
+        // Spring Data JPA tự động tạo query từ tên phương thức
+        List<Product> featuredProducts = productRepository.findProductsByPromotionStatus("ACTIVE");
+
+        // 2. Chuyển đổi (map) List<Product> sang List<ProductCardDTO>
+        return featuredProducts.stream()
+                .map(this::mapToProductCardDTO) // Gọi hàm helper bên dưới
+                .collect(Collectors.toList());
+    }
+
+    /**
+     * Hàm helper (hỗ trợ) để chuyển đổi 1 Product Entity sang 1 ProductCardDTO
+     * (Giữ nguyên, không thay đổi)
+     */
+    private ProductCardDTO mapToProductCardDTO(Product product) {
+        ProductCardDTO dto = new ProductCardDTO();
+        dto.setId(product.getId());
+        dto.setName(product.getName());
+        dto.setOriginalPrice(product.getPrice());
+
+        if (product.getSupplier_id() != null) {
+            dto.setSupplierName(product.getSupplier_id().getName());
+        }
+        
+        if (product.getImages() != null && !product.getImages().isEmpty()) {
+            dto.setImageUrl(product.getImages().get(0).getUrl());
+        }
+
+        Promotion activePromotion = findActivePromotion(product);
+
+        if (activePromotion != null) {
+            double discount = activePromotion.getDiscountPercentage();
+            double originalPrice = product.getPrice();
+            double salePrice = originalPrice * (1 - (discount / 100.0));
+            
+            dto.setSalePrice(salePrice);
+            dto.setDiscountPercentage(discount);
+        } else {
+            dto.setSalePrice(product.getPrice());
+            dto.setDiscountPercentage(0.0);
+        }
+
+        // Tạm thời hard-code, sẽ cập nhật khi có entity Rating
+        dto.setRating(5.0); 
+
+        return dto;
+    }
+
+    /**
+     * Hàm helper tìm 1 khuyến mãi đang "ACTIVE" của sản phẩm
+     * (Giữ nguyên, không thay đổi)
+     */
+    private Promotion findActivePromotion(Product product) {
+        if (product.getPromotionDetails() == null) {
+            return null;
+        }
+        
+        for (PromotionDetail detail : product.getPromotionDetails()) {
+            if (detail.getPromotion_id() != null && 
+                "ACTIVE".equals(detail.getPromotion_id().getStatus())) {
+                
+                return detail.getPromotion_id();
+            }
+        }
+        return null;
+    }
+    @Override
+    @Transactional(readOnly = true)
+    public List<ProductCardDTO> getAllPublicProducts() {
+        
+        // 1. Lấy TẤT CẢ sản phẩm
+        List<Product> allProducts = productRepository.findAll();
+
+        // 2. Chuyển đổi (map) List<Product> sang List<ProductCardDTO>
+        //    Tái sử dụng hàm helper 'mapToProductCardDTO'
+        return allProducts.stream()
+                .map(this::mapToProductCardDTO) 
+                .collect(Collectors.toList());
     }
 }
