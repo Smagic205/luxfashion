@@ -1,7 +1,5 @@
 package com.example.Backend.controller.client;
 
-
-
 import com.example.Backend.dto.ProductCardDTO;
 import com.example.Backend.service.ProductService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -30,14 +28,15 @@ public class ProductPublicController {
     @GetMapping("/featured")
     public List<ProductCardDTO> getFeaturedProducts() {
         List<ProductCardDTO> featuredProducts = productService.getFeaturedProducts();
-        
+
         // Bạn có thể giới hạn số lượng trả về (ví dụ chỉ 4 sản phẩm)
-        // List<ProductCardDTO> limitedList = featuredProducts.stream().limit(4).collect(Collectors.toList());
+        // List<ProductCardDTO> limitedList =
+        // featuredProducts.stream().limit(4).collect(Collectors.toList());
         // return limitedList;
-        
+
         return featuredProducts;
     }
 
-    // (Bạn có thể thêm các API public khác ở đây, 
+    // (Bạn có thể thêm các API public khác ở đây,
     // ví dụ: xem chi tiết 1 sản phẩm, tìm kiếm sản phẩm...)
 }

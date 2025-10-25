@@ -21,7 +21,8 @@ public interface ProductService {
 
     // DELETE (Xoá)
     void deleteProduct(Long id);
-    // * Lấy danh sách sản phẩm nổi bật (đang khuyến mãi) 
-    //  * để hiển thị trên trang chủ.
+
     List<ProductCardDTO> getFeaturedProducts();
+
+    List<ProductCardDTO> getAllPublicProducts();
 }

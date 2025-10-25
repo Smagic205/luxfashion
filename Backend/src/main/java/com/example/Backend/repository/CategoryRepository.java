@@ -5,7 +5,7 @@ import org.springframework.stereotype.Repository;
 
 import com.example.Backend.entity.Category;
 
-@Repository // <-- (3) HOẶC BẠN CÓ THỂ QUÊN DÒNG NÀY
+@Repository
 public interface CategoryRepository extends JpaRepository<Category, Long> {
     // ...
 }

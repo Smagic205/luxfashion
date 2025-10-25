@@ -79,20 +79,14 @@ public class RoleServiceImpl implements RoleService {
     @Override
     @Transactional
     public void deleteRole(Long id) {
-        // 1. Tìm Role
+
         Role role = findRoleById(id);
 
-        // 2. !!! KIỂM TRA QUAN TRỌNG !!!
-        // Kiểm tra xem có User nào đang gắn với Role này không.
-        // Entity Role của bạn có trường `List<User> users`
         if (role.getUsers() != null && !role.getUsers().isEmpty()) {
-            // Nếu có, ném lỗi. Không thể xoá.
-            // GlobalExceptionHandler sẽ bắt lỗi này và trả về 500
+
             throw new RuntimeException("Cannot delete Role with ID " + id +
                     ": Users are still assigned to this role.");
 
-            // (Nâng cao: Bạn có thể tạo 1 exception
-            // là `ConflictException` (409) và bắt nó trong GlobalExceptionHandler)
         }
 
         // 3. Nếu không còn User nào, tiến hành xoá

@@ -35,23 +35,14 @@ public class FormatSuccessResponseAdvice implements ResponseBodyAdvice<Object> {
         HttpServletResponse servletResponse = ((ServletServerHttpResponse) response).getServletResponse();
         int status = servletResponse.getStatus();
 
-        // --- ĐIỀU KIỆN QUAN TRỌNG NHẤT ---
-        // Nếu 'body' đã là một 'RestResponse' (nghĩa là nó được xử lý bởi
-        // GlobalExceptionHandler), thì ta trả về luôn, KHÔNG BỌC LẠI.
         if (body instanceof RestResponse) {
             return body;
         }
 
-        // Fix lỗi: Nếu Controller trả về String, Spring sẽ dùng StringConverter
-        // thay vì JSONConverter, gây lỗi. Nếu thấy String, ta trả về luôn.
-        // (Nhược điểm: API trả về String sẽ không được bọc,
-        // bạn nên tránh trả về String, hãy trả về DTO)
         if (body instanceof String) {
             return body;
         }
 
-        // --- Nếu không phải lỗi, thì đó là THÀNH CÔNG ---
-        // Chúng ta tạo RestResponse và bọc 'body' (dữ liệu) lại
         RestResponse<Object> res = new RestResponse<Object>();
         res.setStatusCode(status);
         res.setData(body); // 'body' chính là data (List<Product>, UserDTO, ...)

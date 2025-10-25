@@ -113,15 +113,6 @@ public class UserServiceImpl implements UserService {
         User user = userRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("User not found with id: " + id));
 
-        // !!! CẢNH BÁO QUAN HỆ NGOẠI KHÓA !!!
-        // Trước khi xoá User, bạn phải xử lý các Bill và Cart liên quan đến User này
-        // (Ví dụ: set user_id trong Bill/Cart thành null, hoặc xoá các Bill/Cart đó)
-        // Nếu không, database sẽ báo lỗi Foreign Key
-
-        // Tạm thời:
-        // billRepository.deleteAll(user.getBills()); // Cần có BillRepository
-        // cartRepository.deleteAll(user.getCarts()); // Cần có CartRepository
-
         userRepository.delete(user);
     }
 
