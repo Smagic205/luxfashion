@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import ProductGrid from "./ds-sanpham"; // Đảm bảo đường dẫn đúng
+import ProductGrid from "./ds-sanpham";
 
 export default function ProductSection({ apiUrl }) {
   const [products, setProducts] = useState([]);
@@ -12,16 +12,28 @@ export default function ProductSection({ apiUrl }) {
         const res = await fetch(apiUrl);
         const data = await res.json();
 
-        console.log("Data nhận được:", data);
+        console.log("Data nhận được từ API:", data);
 
-        // Dữ liệu backend của bạn là { statusCode, message, data: [...] }
-        // => cần lấy mảng trong data.data
         if (data && Array.isArray(data.data)) {
-          setProducts(data.data);
-        } else if (Array.isArray(data.products)) {
-          setProducts(data.products);
+          const mapped = data.data.map((p) => {
+            // ✅ Lấy ảnh từ trường imageUrl
+            const imageLink = p.imageUrl || "http://localhost:8080/images/no-image.png";
+            console.log("Link ảnh sản phẩm:", imageLink); // log link ảnh để kiểm tra
+
+            return {
+              id: p.id,
+              name: p.name,
+              brand: p.supplierName,
+              rating: p.rating || "N/A",
+              price: p.salePrice,
+              sale: p.discountPercentage || 0,
+              image: imageLink,
+            };
+          });
+
+          setProducts(mapped);
         } else {
-          console.warn("Không tìm thấy danh sách sản phẩm hợp lệ trong API.");
+          console.warn("Không có danh sách sản phẩm hợp lệ");
           setProducts([]);
         }
       } catch (err) {
@@ -35,21 +47,22 @@ export default function ProductSection({ apiUrl }) {
     fetchProducts();
   }, [apiUrl]);
 
-  // ✅ Trạng thái hiển thị
-  if (loading) {
-    return <p className="text-gray-500 text-center mt-4">Đang tải sản phẩm...</p>;
-  }
+  if (loading)
+    return (
+      <p className="text-gray-500 text-center mt-4">Đang tải sản phẩm...</p>
+    );
 
-  if (error) {
+  if (error)
     return <p className="text-red-500 text-center mt-4">{error}</p>;
-  }
 
   return (
     <div>
       {products.length > 0 ? (
         <ProductGrid products={products} />
       ) : (
-        <p className="text-gray-500 text-center mt-4">Không có sản phẩm nào để hiển thị.</p>
+        <p className="text-gray-500 text-center mt-4">
+          Không có sản phẩm nào để hiển thị.
+        </p>
       )}
     </div>
   );

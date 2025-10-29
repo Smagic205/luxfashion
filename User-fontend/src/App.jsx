@@ -2,6 +2,7 @@
 import './App.css';
 import Home from './pages/home';
 import Header from './components/header';
+import Footer from './components/footer';
 import GioiThieu from './pages/goithieu';
 import SanPham from './pages/sanpham';
 import Combo from './pages/combo';
@@ -35,8 +36,9 @@ function App() {
           {/* Nếu nhập sai đường dẫn */}
           
         </Routes>
+        
        </Router>
-    
+        <Footer/>
     </>
   );
 }

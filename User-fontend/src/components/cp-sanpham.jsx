@@ -2,7 +2,7 @@ import React from "react";
 
 const ProductCard = ({ image, name, brand, rating, price, sale }) => {
   return (
-    <div className="bg-white rounded-2xl shadow-md p-4 hover:scale-105 transition-transform duration-300 cursor-pointer">
+    <div className="bg-white rounded-2xl shadow-2xl p-4 hover:scale-105 transition-transform duration-300 cursor-pointer">
       {/* Ảnh sản phẩm */}
       <div className="w-full h-56 overflow-hidden rounded-xl">
         <img
@@ -22,8 +22,8 @@ const ProductCard = ({ image, name, brand, rating, price, sale }) => {
 
       {/* Các thông tin phụ */}
       <div className="flex justify-between text-center text-sm mt-3">
-        <div className="flex-1 border rounded-md mx-1 p-1">
-           {rating || "N/A"}
+        <div className="flex-1 border rounded-md mx-1 p-1 text-red-600 font-bold">
+           {rating || "N/A"}⭐
         </div>
         <div className="flex-1 border rounded-md mx-1 p-1">
            {price}₫
