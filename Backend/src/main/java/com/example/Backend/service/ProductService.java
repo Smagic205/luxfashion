@@ -26,10 +26,10 @@ public interface ProductService {
 
     List<ProductCardDTO> getFeaturedProducts();
 
-    List<ProductCardDTO> getAllPublicProducts();
-
     ProductCardDTO getPublicProduct(long id);
 
     Product getProductById(long id);
+
+    List<ProductCardDTO> getAllPublicProducts(Long categoryId);
 
 }

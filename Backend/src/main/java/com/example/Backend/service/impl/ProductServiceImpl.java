@@ -13,6 +13,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 import java.util.stream.Collectors;
 
 @Service // Đánh dấu đây là 1 Bean Service
@@ -319,31 +320,6 @@ public class ProductServiceImpl implements ProductService {
      */
 
     @Override
-    @Transactional(readOnly = true)
-    public List<ProductCardDTO> getFeaturedProducts() {
-        // Lấy SP đang khuyến mãi
-        List<Product> featuredProducts = productRepository.findProductsByPromotionStatus("ACTIVE");
-
-        // Chuyển sang Dạng Thẻ
-        return featuredProducts.stream()
-                .map(this::mapToProductCardDTO)
-                .collect(Collectors.toList());
-    }
-
-    @Override
-    @Transactional(readOnly = true)
-    public List<ProductCardDTO> getAllPublicProducts() {
-
-        // Lấy TẤT CẢ sản phẩm
-        List<Product> allProducts = productRepository.findAll();
-
-        // Chuyển sang Dạng Thẻ
-        return allProducts.stream()
-                .map(this::mapToProductCardDTO)
-                .collect(Collectors.toList());
-    }
-
-    @Override
     public ProductCardDTO getPublicProduct(long id) {
         // TODO Auto-generated method stub
         throw new UnsupportedOperationException("Unimplemented method 'getPublicProduct'");
@@ -353,5 +329,36 @@ public class ProductServiceImpl implements ProductService {
     public Product getProductById(long id) {
         // TODO Auto-generated method stub
         throw new UnsupportedOperationException("Unimplemented method 'getProductById'");
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public List<ProductCardDTO> getFeaturedProducts() {
+        List<Product> featuredProducts = productRepository.findProductsByPromotionStatus("ACTIVE");
+        return featuredProducts.stream()
+                .filter(Objects::nonNull)
+                .map(this::mapToProductCardDTO)
+                .collect(Collectors.toList());
+    }
+
+    /**
+     * Lấy tất cả sản phẩm (có lọc category đơn giản)
+     */
+    @Override
+    @Transactional(readOnly = true)
+    public List<ProductCardDTO> getAllPublicProducts(Long categoryId) {
+        List<Product> products;
+        if (categoryId != null) {
+            // --- Sửa ở đây ---
+            // Gọi phương thức mới dùng @Query
+            products = productRepository.findByCategoryId(categoryId); // <-- Gọi tên hàm mới
+
+        } else {
+            products = productRepository.findAll();
+        }
+        return products.stream()
+                .filter(Objects::nonNull) // Lọc bỏ null
+                .map(this::mapToProductCardDTO)
+                .collect(Collectors.toList());
     }
 }
