@@ -10,7 +10,7 @@ import java.util.stream.Collectors;
 public class ProductResponseDTO {
     private Long id;
     private String name;
-    private Double price;
+
     private int quantity;
     private String description;
 
@@ -18,7 +18,9 @@ public class ProductResponseDTO {
     private SimpleInfoDTO category;
     private SimpleInfoDTO categoryProduct;
     private SimpleInfoDTO supplier;
-
+    private Double originalPrice; // Giá gốc
+    private Double salePrice; // Giá bán (sau khi giảm)
+    private Double discountPercentage;
     private List<String> images; // Chỉ cần list URL
     private List<SimpleInfoDTO> colors;
     private List<SimpleInfoDTO> sizes;
@@ -27,7 +29,7 @@ public class ProductResponseDTO {
     public ProductResponseDTO(Product product) {
         this.id = product.getId();
         this.name = product.getName();
-        this.price = product.getPrice();
+        this.originalPrice = product.getPrice();
         this.quantity = product.getQuantity();
         this.description = product.getDescription();
 
@@ -71,8 +73,28 @@ public class ProductResponseDTO {
         return name;
     }
 
-    public Double getPrice() {
-        return price;
+    public Double getOriginalPrice() {
+        return originalPrice;
+    }
+
+    public void setOriginalPrice(Double originalPrice) {
+        this.originalPrice = originalPrice;
+    }
+
+    public Double getSalePrice() {
+        return salePrice;
+    }
+
+    public void setSalePrice(Double salePrice) {
+        this.salePrice = salePrice;
+    }
+
+    public Double getDiscountPercentage() {
+        return discountPercentage;
+    }
+
+    public void setDiscountPercentage(Double discountPercentage) {
+        this.discountPercentage = discountPercentage;
     }
 
     public int getQuantity() {

@@ -3,6 +3,8 @@ package com.example.Backend.service;
 import com.example.Backend.dto.ProductCardDTO;
 import com.example.Backend.dto.ProductRequestDTO;
 import com.example.Backend.dto.ProductResponseDTO;
+import com.example.Backend.entity.Product;
+
 import java.util.List;
 
 public interface ProductService {
@@ -25,4 +27,9 @@ public interface ProductService {
     List<ProductCardDTO> getFeaturedProducts();
 
     List<ProductCardDTO> getAllPublicProducts();
+
+    ProductCardDTO getPublicProduct(long id);
+
+    Product getProductById(long id);
+
 }

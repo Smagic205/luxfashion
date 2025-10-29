@@ -4,12 +4,12 @@ import com.example.Backend.dto.ProductCardDTO;
 import com.example.Backend.dto.ProductRequestDTO;
 import com.example.Backend.dto.ProductResponseDTO;
 import com.example.Backend.entity.*; // Import tất cả entity
-import com.example.Backend.exception.ResourceNotFoundException; // Exception 404
+import com.example.Backend.exception.ResourceNotFoundException;
 import com.example.Backend.repository.*; // Import tất cả repository
 import com.example.Backend.service.ProductService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional; // Rất quan trọng
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -38,32 +38,133 @@ public class ProductServiceImpl implements ProductService {
     @Autowired
     private ProductSizeRepository productSizeRepository;
 
-    // (Bạn cần inject thêm BillDetailRepository, CartDetailRepository... nếu muốn
-    // xoá)
+    // (Bạn sẽ cần inject thêm các repository khác nếu logic phức tạp hơn)
+    // @Autowired private PromotionDetailRepository promotionDetailRepository;
+    // @Autowired private CartDetailRepository cartDetailRepository;
 
-    // Hàm helper để tìm sản phẩm hoặc ném lỗi 404
+    /**
+     * =======================================================
+     * HÀM HELPER (HỖ TRỢ) NỘI BỘ
+     * =======================================================
+     */
+
+    /**
+     * Hàm helper: Tìm sản phẩm theo ID hoặc ném lỗi 404
+     */
     private Product findProductById(Long id) {
         return productRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Product not found with id: " + id));
     }
 
+    /**
+     * Hàm helper: Tìm 1 khuyến mãi đang "ACTIVE" của sản phẩm
+     */
+    private Promotion findActivePromotion(Product product) {
+        if (product.getPromotionDetails() == null) {
+            return null;
+        }
+
+        for (PromotionDetail detail : product.getPromotionDetails()) {
+            if (detail.getPromotion_id() != null &&
+                    "ACTIVE".equals(detail.getPromotion_id().getStatus())) {
+
+                return detail.getPromotion_id(); // Trả về khuyến mãi đầu tiên tìm thấy
+            }
+        }
+        return null; // Không tìm thấy
+    }
+
+    /**
+     * Hàm helper: Chuyển đổi 1 Product Entity sang 1 ProductCardDTO (dạng thẻ)
+     */
+    private ProductCardDTO mapToProductCardDTO(Product product) {
+        ProductCardDTO dto = new ProductCardDTO();
+        dto.setId(product.getId());
+        dto.setName(product.getName());
+        dto.setOriginalPrice(product.getPrice());
+
+        if (product.getSupplier_id() != null) {
+            dto.setSupplierName(product.getSupplier_id().getName());
+        }
+
+        if (product.getImages() != null && !product.getImages().isEmpty()) {
+            dto.setImageUrl(product.getImages().get(0).getUrl());
+        }
+
+        // --- Logic tính toán giá Sale (tái sử dụng) ---
+        Promotion activePromotion = findActivePromotion(product);
+
+        if (activePromotion != null) {
+            double discount = activePromotion.getDiscountPercentage();
+            double originalPrice = product.getPrice();
+            double salePrice = originalPrice * (1 - (discount / 100.0));
+
+            dto.setSalePrice(salePrice);
+            dto.setDiscountPercentage(discount);
+        } else {
+            dto.setSalePrice(product.getPrice());
+            dto.setDiscountPercentage(0.0);
+        }
+
+        // Tạm thời hard-code, sẽ cập nhật khi có entity Rating
+        dto.setRating(5.0);
+
+        return dto;
+    }
+
+    /**
+     * =======================================================
+     * PHẦN 1: LOGIC CHO ADMIN (CRUD)
+     * =======================================================
+     */
+
     @Override
-    @Transactional(readOnly = true) // Giao dịch chỉ đọc
+    @Transactional(readOnly = true)
     public List<ProductResponseDTO> getAllProducts() {
-        return productRepository.findAll().stream()
-                .map(ProductResponseDTO::new) // Tương đương 'product -> new ProductResponseDTO(product)'
+        // Lấy danh sách Product (Entity)
+        List<Product> products = productRepository.findAll();
+
+        // Map (chuyển đổi) từng Product sang ProductResponseDTO (có tính giá sale)
+        // Chúng ta gọi lại hàm getProductById(id) để tận dụng logic
+        return products.stream()
+                .map(product -> getProductById(product.getId()))
                 .collect(Collectors.toList());
     }
 
     @Override
     @Transactional(readOnly = true)
     public ProductResponseDTO getProductById(Long id) {
+        // 1. Tìm sản phẩm hoặc ném lỗi 404
         Product product = findProductById(id);
-        return new ProductResponseDTO(product);
+
+        // 2. Map thông tin cơ bản (bao gồm cả giá gốc)
+        // Constructor của DTO sẽ map các trường cơ bản
+        ProductResponseDTO dto = new ProductResponseDTO(product);
+
+        // 3. --- LOGIC TÍNH GIÁ SALE (Theo yêu cầu của bạn) ---
+        // Tái sử dụng hàm helper 'findActivePromotion'
+        Promotion activePromotion = findActivePromotion(product);
+
+        if (activePromotion != null) {
+            // Nếu CÓ giảm giá:
+            double discount = activePromotion.getDiscountPercentage();
+            double originalPrice = product.getPrice();
+            double salePrice = originalPrice * (1 - (discount / 100.0));
+
+            dto.setSalePrice(salePrice); // Gán giá đã giảm
+            dto.setDiscountPercentage(discount); // Gán % giảm
+        } else {
+            // Nếu KHÔNG có giảm giá:
+            dto.setSalePrice(product.getPrice()); // Giá bán = Giá gốc
+            dto.setDiscountPercentage(0.0); // % giảm = 0
+        }
+
+        // 4. Trả về DTO đầy đủ thông tin
+        return dto;
     }
 
     @Override
-    @Transactional // Bắt buộc
+    @Transactional
     public ProductResponseDTO createProduct(ProductRequestDTO request) {
 
         // 1. Tìm các đối tượng liên quan từ ID
@@ -106,7 +207,7 @@ public class ProductServiceImpl implements ProductService {
                     })
                     .collect(Collectors.toList());
             productColorRepository.saveAll(productColors);
-            savedProduct.setProductColors(productColors); // Gán lại
+            savedProduct.setProductColors(productColors);
         }
 
         // 6. Xử lý danh sách Sizes
@@ -119,21 +220,19 @@ public class ProductServiceImpl implements ProductService {
                     })
                     .collect(Collectors.toList());
             productSizeRepository.saveAll(productSizes);
-            savedProduct.setProductSizes(productSizes); // Gán lại
+            savedProduct.setProductSizes(productSizes);
         }
 
-        // 7. Trả về DTO
-        return new ProductResponseDTO(savedProduct);
+        // 7. Gọi lại hàm getProductById để trả về DTO (có giá sale)
+        return getProductById(savedProduct.getId());
     }
 
     @Override
-    @Transactional // Bắt buộc
+    @Transactional
     public ProductResponseDTO updateProduct(Long id, ProductRequestDTO request) {
 
-        // 1. Tìm Product cũ
         Product existingProduct = findProductById(id);
 
-        // 2. Tìm các đối tượng liên quan mới
         Category category = categoryRepository.findById(request.getCategoryId())
                 .orElseThrow(() -> new ResourceNotFoundException("Category not found"));
         CategoryProduct categoryProduct = categoryProductRepository.findById(request.getCategoryProductId())
@@ -141,7 +240,7 @@ public class ProductServiceImpl implements ProductService {
         Supplier supplier = supplierRepository.findById(request.getSupplierId())
                 .orElseThrow(() -> new ResourceNotFoundException("Supplier not found"));
 
-        // 3. Cập nhật thông tin cơ bản
+        // Cập nhật thông tin cơ bản
         existingProduct.setName(request.getName());
         existingProduct.setPrice(request.getPrice());
         existingProduct.setQuantity(request.getQuantity());
@@ -150,10 +249,8 @@ public class ProductServiceImpl implements ProductService {
         existingProduct.setCategoryProduct_id(categoryProduct);
         existingProduct.setSupplier_id(supplier);
 
-        // 4. Xử lý các danh sách (Cách đơn giản: Xoá hết cũ, thêm lại mới)
-
-        // 4a. Images
-        imageRepository.deleteAll(existingProduct.getImages()); // Xoá hết ảnh cũ
+        // Xử lý Images (Xoá cũ, thêm mới)
+        imageRepository.deleteAll(existingProduct.getImages());
         List<Image> newImages = new ArrayList<>();
         if (request.getImageUrls() != null) {
             newImages = request.getImageUrls().stream()
@@ -161,10 +258,10 @@ public class ProductServiceImpl implements ProductService {
                     .collect(Collectors.toList());
             imageRepository.saveAll(newImages);
         }
-        existingProduct.setImages(newImages); // Gán lại list mới
+        existingProduct.setImages(newImages);
 
-        // 4b. Colors
-        productColorRepository.deleteAll(existingProduct.getProductColors()); // Xoá màu cũ
+        // Xử lý Colors
+        productColorRepository.deleteAll(existingProduct.getProductColors());
         List<ProductColor> newProductColors = new ArrayList<>();
         if (request.getColorIds() != null) {
             newProductColors = request.getColorIds().stream()
@@ -176,10 +273,10 @@ public class ProductServiceImpl implements ProductService {
                     .collect(Collectors.toList());
             productColorRepository.saveAll(newProductColors);
         }
-        existingProduct.setProductColors(newProductColors); // Gán lại
+        existingProduct.setProductColors(newProductColors);
 
-        // 4c. Sizes
-        productSizeRepository.deleteAll(existingProduct.getProductSizes()); // Xoá size cũ
+        // Xử lý Sizes
+        productSizeRepository.deleteAll(existingProduct.getProductSizes());
         List<ProductSize> newProductSizes = new ArrayList<>();
         if (request.getSizeIds() != null) {
             newProductSizes = request.getSizeIds().stream()
@@ -191,125 +288,70 @@ public class ProductServiceImpl implements ProductService {
                     .collect(Collectors.toList());
             productSizeRepository.saveAll(newProductSizes);
         }
-        existingProduct.setProductSizes(newProductSizes); // Gán lại
+        existingProduct.setProductSizes(newProductSizes);
 
-        // 5. Lưu Product đã cập nhật
+        // Lưu và trả về DTO (đã có giá sale)
         Product updatedProduct = productRepository.save(existingProduct);
-
-        // 6. Trả về DTO
-        return new ProductResponseDTO(updatedProduct);
+        return getProductById(updatedProduct.getId());
     }
 
     @Override
     @Transactional
     public void deleteProduct(Long id) {
-        Product product = findProductById(id); // Check xem có tồn tại không
+        Product product = findProductById(id);
 
         // 1. Xoá các bảng phụ thuộc (bảng trung gian, bảng con) TRƯỚC
-        // Nếu không xoá những cái này trước, DB sẽ báo lỗi "Foreign Key Constraint"
         imageRepository.deleteAll(product.getImages());
         productColorRepository.deleteAll(product.getProductColors());
         productSizeRepository.deleteAll(product.getProductSizes());
 
-        // 2. Xoá các chi tiết liên quan (BillDetail, CartDetail, PromotionDetail)
-        // Đây là nghiệp vụ quan trọng: Bạn muốn xoá hay giữ lại?
-        // Giả sử chúng ta muốn xoá (Hard Delete)
-        // @Autowired private CartDetailRepository cartDetailRepository;
-        // @Autowired private BillDetailRepository billDetailRepository;
-        // @Autowired private PromotionDetailRepository promotionDetailRepository;
-        // cartDetailRepository.deleteByProduct(product); // Cần viết query này
-        // billDetailRepository.deleteByProduct(product); // Cần viết query này
-        // promotionDetailRepository.deleteByProduct(product); // Cần viết query này
+        // (Bạn phải xử lý các bảng tham chiếu khác như CartDetail, BillDetail... ở đây)
+        // promotionDetailRepository.deleteAll(product.getPromotionDetails());
 
-        // 3. Sau khi xoá hết các con, xoá Product
+        // 2. Xoá Product
         productRepository.delete(product);
     }
+
+    /**
+     * =======================================================
+     * PHẦN 2: LOGIC CHO USER (PUBLIC)
+     * =======================================================
+     */
+
     @Override
-    @Transactional(readOnly = true) // Giao dịch chỉ đọc (nhanh hơn)
+    @Transactional(readOnly = true)
     public List<ProductCardDTO> getFeaturedProducts() {
-        
-        // --- THAY ĐỔI NẰM Ở ĐÂY ---
-        
-        // Code cũ (dùng @Query):
-        // List<Product> featuredProducts = productRepository.findProductsByPromotionStatus("ACTIVE");
-        
-        // Code MỚI (dùng Derived Query Method):
-        // Spring Data JPA tự động tạo query từ tên phương thức
+        // Lấy SP đang khuyến mãi
         List<Product> featuredProducts = productRepository.findProductsByPromotionStatus("ACTIVE");
 
-        // 2. Chuyển đổi (map) List<Product> sang List<ProductCardDTO>
+        // Chuyển sang Dạng Thẻ
         return featuredProducts.stream()
-                .map(this::mapToProductCardDTO) // Gọi hàm helper bên dưới
+                .map(this::mapToProductCardDTO)
                 .collect(Collectors.toList());
     }
 
-    /**
-     * Hàm helper (hỗ trợ) để chuyển đổi 1 Product Entity sang 1 ProductCardDTO
-     * (Giữ nguyên, không thay đổi)
-     */
-    private ProductCardDTO mapToProductCardDTO(Product product) {
-        ProductCardDTO dto = new ProductCardDTO();
-        dto.setId(product.getId());
-        dto.setName(product.getName());
-        dto.setOriginalPrice(product.getPrice());
-
-        if (product.getSupplier_id() != null) {
-            dto.setSupplierName(product.getSupplier_id().getName());
-        }
-        
-        if (product.getImages() != null && !product.getImages().isEmpty()) {
-            dto.setImageUrl(product.getImages().get(0).getUrl());
-        }
-
-        Promotion activePromotion = findActivePromotion(product);
-
-        if (activePromotion != null) {
-            double discount = activePromotion.getDiscountPercentage();
-            double originalPrice = product.getPrice();
-            double salePrice = originalPrice * (1 - (discount / 100.0));
-            
-            dto.setSalePrice(salePrice);
-            dto.setDiscountPercentage(discount);
-        } else {
-            dto.setSalePrice(product.getPrice());
-            dto.setDiscountPercentage(0.0);
-        }
-
-        // Tạm thời hard-code, sẽ cập nhật khi có entity Rating
-        dto.setRating(5.0); 
-
-        return dto;
-    }
-
-    /**
-     * Hàm helper tìm 1 khuyến mãi đang "ACTIVE" của sản phẩm
-     * (Giữ nguyên, không thay đổi)
-     */
-    private Promotion findActivePromotion(Product product) {
-        if (product.getPromotionDetails() == null) {
-            return null;
-        }
-        
-        for (PromotionDetail detail : product.getPromotionDetails()) {
-            if (detail.getPromotion_id() != null && 
-                "ACTIVE".equals(detail.getPromotion_id().getStatus())) {
-                
-                return detail.getPromotion_id();
-            }
-        }
-        return null;
-    }
     @Override
     @Transactional(readOnly = true)
     public List<ProductCardDTO> getAllPublicProducts() {
-        
-        // 1. Lấy TẤT CẢ sản phẩm
+
+        // Lấy TẤT CẢ sản phẩm
         List<Product> allProducts = productRepository.findAll();
 
-        // 2. Chuyển đổi (map) List<Product> sang List<ProductCardDTO>
-        //    Tái sử dụng hàm helper 'mapToProductCardDTO'
+        // Chuyển sang Dạng Thẻ
         return allProducts.stream()
-                .map(this::mapToProductCardDTO) 
+                .map(this::mapToProductCardDTO)
                 .collect(Collectors.toList());
+    }
+
+    @Override
+    public ProductCardDTO getPublicProduct(long id) {
+        // TODO Auto-generated method stub
+        throw new UnsupportedOperationException("Unimplemented method 'getPublicProduct'");
+    }
+
+    @Override
+    public Product getProductById(long id) {
+        // TODO Auto-generated method stub
+        throw new UnsupportedOperationException("Unimplemented method 'getProductById'");
     }
 }
