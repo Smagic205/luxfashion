@@ -9,7 +9,7 @@ import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("/api/admin/promotion-details")
-@CrossOrigin(origins = "http://localhost:3000")
+
 public class PromotionDetailAdminController {
 
     @Autowired
