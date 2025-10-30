@@ -1,35 +1,37 @@
 package com.example.Backend.service;
 
 import com.example.Backend.dto.ProductCardDTO;
+import com.example.Backend.dto.ProductFilterDTO; // <-- 1. THÊM IMPORT
 import com.example.Backend.dto.ProductRequestDTO;
 import com.example.Backend.dto.ProductResponseDTO;
-import com.example.Backend.entity.Product;
-
+import org.springframework.data.domain.Sort; // <-- 2. THÊM IMPORT
 import java.util.List;
 
 public interface ProductService {
 
-    // READ (Lấy tất cả)
+    // --- Admin CRUD (Giữ nguyên) ---
     List<ProductResponseDTO> getAllProducts();
 
-    // READ (Lấy 1 cái theo ID)
     ProductResponseDTO getProductById(Long id);
 
-    // CREATE (Tạo mới)
     ProductResponseDTO createProduct(ProductRequestDTO productRequest);
 
-    // UPDATE (Cập nhật)
     ProductResponseDTO updateProduct(Long id, ProductRequestDTO productRequest);
 
-    // DELETE (Xoá)
     void deleteProduct(Long id);
 
-    List<ProductCardDTO> getFeaturedProducts();
+    // --- User Public ---
+    List<ProductCardDTO> getFeaturedProducts(); // Trang chủ
 
-    ProductCardDTO getPublicProduct(long id);
+    /**
+     * 3. SỬA LẠI HÀM NÀY:
+     * Lấy sản phẩm công khai, có lọc và sắp xếp động.
+     * 
+     * @param filters DTO chứa các tiêu chí lọc.
+     * @param sort    Đối tượng Sort để sắp xếp.
+     */
+    List<ProductCardDTO> getAllPublicProducts(ProductFilterDTO filters, Sort sort);
 
-    Product getProductById(long id);
-
-    List<ProductCardDTO> getAllPublicProducts(Long categoryId);
-
+    // --- 4. XÓA HÀM CŨ ---
+    // List<ProductCardDTO> getAllPublicProducts(Long categoryId);
 }

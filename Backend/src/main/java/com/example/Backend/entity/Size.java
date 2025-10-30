@@ -18,9 +18,6 @@ public class Size {
 
     private String name;
 
-    @OneToMany(mappedBy = "size_id")
-    private List<ProductSize> productSizes;
-
     public Size() {
     }
 
@@ -45,11 +42,4 @@ public class Size {
         this.name = name;
     }
 
-    public List<ProductSize> getProductSizes() {
-        return productSizes;
-    }
-
-    public void setProductSizes(List<ProductSize> productSizes) {
-        this.productSizes = productSizes;
-    }
 }

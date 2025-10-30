@@ -2,75 +2,96 @@ package com.example.Backend.dto;
 
 import com.example.Backend.entity.Image;
 import com.example.Backend.entity.Product;
-
+import com.example.Backend.entity.ProductVariant; // Import Variant
 import java.util.List;
 import java.util.stream.Collectors;
 
-// DTO này "đại diện" cho 1 sản phẩm khi trả về cho React
 public class ProductResponseDTO {
     private Long id;
     private String name;
-
-    private int quantity;
+    // private int quantity; // <-- XÓA
     private String description;
+    private Double originalPrice;
+    private Double salePrice;
+    private Double discountPercentage;
+    private Double averageRating; // <-- THÊM
 
-    // Chúng ta sẽ trả về thông tin chi tiết hơn thay vì chỉ ID
     private SimpleInfoDTO category;
     private SimpleInfoDTO categoryProduct;
     private SimpleInfoDTO supplier;
-    private Double originalPrice; // Giá gốc
-    private Double salePrice; // Giá bán (sau khi giảm)
-    private Double discountPercentage;
-    private List<String> images; // Chỉ cần list URL
-    private List<SimpleInfoDTO> colors;
-    private List<SimpleInfoDTO> sizes;
 
-    // Constructor để map từ Entity
+    private List<String> images;
+    // private List<SimpleInfoDTO> colors; // <-- XÓA
+    // private List<SimpleInfoDTO> sizes; // <-- XÓA
+
+    private List<VariantResponseDTO> variants; // <-- THÊM
+    private int totalQuantity; // <-- THÊM
+
     public ProductResponseDTO(Product product) {
         this.id = product.getId();
         this.name = product.getName();
         this.originalPrice = product.getPrice();
-        this.quantity = product.getQuantity();
         this.description = product.getDescription();
+        this.averageRating = product.getAverageRating(); // Lấy rating
 
-        // Map các đối tượng liên quan (kiểm tra null)
+        // Map category
         if (product.getCategory_id() != null) {
             this.category = new SimpleInfoDTO(product.getCategory_id().getId(), product.getCategory_id().getName());
         }
+        // Map categoryProduct
         if (product.getCategoryProduct_id() != null) {
             this.categoryProduct = new SimpleInfoDTO(product.getCategoryProduct_id().getId(),
                     product.getCategoryProduct_id().getName());
         }
+        // Map supplier
         if (product.getSupplier_id() != null) {
             this.supplier = new SimpleInfoDTO(product.getSupplier_id().getId(), product.getSupplier_id().getName());
         }
-
-        // Map danh sách
+        // Map images
         if (product.getImages() != null) {
             this.images = product.getImages().stream()
                     .map(Image::getUrl)
                     .collect(Collectors.toList());
         }
 
-        if (product.getProductColors() != null) {
-            this.colors = product.getProductColors().stream()
-                    .map(pc -> new SimpleInfoDTO(pc.getColor_id().getId(), pc.getColor_id().getName()))
+        // --- LOGIC MAP MỚI ---
+        if (product.getVariants() != null) {
+            this.variants = product.getVariants().stream()
+                    .map(VariantResponseDTO::new)
                     .collect(Collectors.toList());
-        }
 
-        if (product.getProductSizes() != null) {
-            this.sizes = product.getProductSizes().stream()
-                    .map(ps -> new SimpleInfoDTO(ps.getSize_id().getId(), ps.getSize_id().getName()))
-                    .collect(Collectors.toList());
+            this.totalQuantity = product.getVariants().stream()
+                    .mapToInt(ProductVariant::getQuantity)
+                    .sum();
+        } else {
+            this.totalQuantity = 0;
+            this.variants = List.of(); // Trả về list rỗng
         }
     }
 
+    // --- Getters and Setters (Đầy đủ) ---
     public Long getId() {
         return id;
     }
 
+    public void setId(Long id) {
+        this.id = id;
+    }
+
     public String getName() {
         return name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
+    }
+
+    public String getDescription() {
+        return description;
+    }
+
+    public void setDescription(String description) {
+        this.description = description;
     }
 
     public Double getOriginalPrice() {
@@ -97,36 +118,59 @@ public class ProductResponseDTO {
         this.discountPercentage = discountPercentage;
     }
 
-    public int getQuantity() {
-        return quantity;
+    public Double getAverageRating() {
+        return averageRating;
     }
 
-    public String getDescription() {
-        return description;
+    public void setAverageRating(Double averageRating) {
+        this.averageRating = averageRating;
     }
 
     public SimpleInfoDTO getCategory() {
         return category;
     }
 
+    public void setCategory(SimpleInfoDTO category) {
+        this.category = category;
+    }
+
     public SimpleInfoDTO getCategoryProduct() {
         return categoryProduct;
+    }
+
+    public void setCategoryProduct(SimpleInfoDTO categoryProduct) {
+        this.categoryProduct = categoryProduct;
     }
 
     public SimpleInfoDTO getSupplier() {
         return supplier;
     }
 
+    public void setSupplier(SimpleInfoDTO supplier) {
+        this.supplier = supplier;
+    }
+
     public List<String> getImages() {
         return images;
     }
 
-    public List<SimpleInfoDTO> getColors() {
-        return colors;
+    public void setImages(List<String> images) {
+        this.images = images;
     }
 
-    public List<SimpleInfoDTO> getSizes() {
-        return sizes;
+    public List<VariantResponseDTO> getVariants() {
+        return variants;
     }
 
+    public void setVariants(List<VariantResponseDTO> variants) {
+        this.variants = variants;
+    }
+
+    public int getTotalQuantity() {
+        return totalQuantity;
+    }
+
+    public void setTotalQuantity(int totalQuantity) {
+        this.totalQuantity = totalQuantity;
+    }
 }

@@ -29,10 +29,13 @@ public class WebConfig implements WebMvcConfigurer {
      */
     @Override
     public void addCorsMappings(CorsRegistry registry) {
-        registry.addMapping("/**") // Áp dụng cho tất cả endpoint
-                .allowedOrigins("http://localhost:5173") // Cho phép ứng dụng React của bạn
-                .allowedMethods("GET", "POST", "PUT", "DELETE", "OPTIONS") // Các phương thức HTTP được phép
-                .allowedHeaders("*"); // Cho phép tất cả header
+        registry.addMapping("/**")
+                .allowedOrigins(
+                        "http://localhost:5173", // Giữ lại port dev
+                        "https://[random-string-2].ngrok-free.app" // <-- THÊM DÒNG NÀY
+                )
+                .allowedMethods("GET", "POST", "PUT", "DELETE", "OPTIONS")
+                .allowedHeaders("*");
     }
 
     // Bạn KHÔNG CẦN phương thức @Bean corsConfigurer() nữa

@@ -1,7 +1,6 @@
 package com.example.Backend.entity;
 
 import java.util.List;
-
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
@@ -9,6 +8,7 @@ import jakarta.persistence.Id;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
+import jakarta.persistence.JoinColumn; // Thêm import này
 
 @Entity
 @Table(name = "carts")
@@ -18,10 +18,15 @@ public class Cart {
     private Long id;
 
     @ManyToOne
+    @JoinColumn(name = "user_id") // Thêm @JoinColumn cho rõ ràng
     private User user;
-    
-    @OneToMany(mappedBy = "cart_id")
+
+    // --- SỬA LỖI Ở ĐÂY ---
+    // mappedBy phải trỏ đến tên TRƯỜNG (field) trong CartDetail.java
+    // Tên trường đó là "cart".
+    @OneToMany(mappedBy = "cart")
     private List<CartDetail> cartDetails;
+    // --- HẾT LỖI ---
 
     public Cart() {
     }
@@ -30,7 +35,7 @@ public class Cart {
         this.user = user;
     }
 
-    // Getters and Setters
+    // --- Getters and Setters ---
     public Long getId() {
         return id;
     }

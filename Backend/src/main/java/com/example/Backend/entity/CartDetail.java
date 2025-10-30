@@ -6,6 +6,7 @@ import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
+import jakarta.persistence.JoinColumn;
 
 @Entity
 @Table(name = "cart_details")
@@ -15,25 +16,38 @@ public class CartDetail {
     private Long id;
 
     private int quantity;
-    private Double price;
+    private Double price; // Giá tại thời điểm thêm vào giỏ
 
     @ManyToOne
-    private Cart cart_id;
+    @JoinColumn(name = "cart_id")
+    private Cart cart; // Đổi tên thành "cart" (chuẩn Java)
 
+    // --- XÓA CÁC TRƯỜNG CŨ ---
+    // @ManyToOne
+    // private Product product_id;
+    // @ManyToOne
+    // private Color color_id;
+    // @ManyToOne
+    // private Size size_id;
+
+    // --- THÊM TRƯỜNG MỚI ---
+    // Liên kết trực tiếp đến biến thể
     @ManyToOne
-    private Product product_id;
+    @JoinColumn(name = "product_variant_id", nullable = false)
+    private ProductVariant productVariant;
 
+    // Constructors
     public CartDetail() {
     }
 
-    public CartDetail(int quantity, Double price, Cart cart_id, Product product_id) {
+    public CartDetail(Cart cart, ProductVariant productVariant, int quantity, Double price) {
+        this.cart = cart;
+        this.productVariant = productVariant;
         this.quantity = quantity;
         this.price = price;
-        this.cart_id = cart_id;
-        this.product_id = product_id;
     }
 
-    // Getters and Setters
+    // --- Getters and Setters (Đã cập nhật) ---
     public Long getId() {
         return id;
     }
@@ -58,19 +72,22 @@ public class CartDetail {
         this.price = price;
     }
 
-    public Cart getCart_id() {
-        return cart_id;
+    public Cart getCart() {
+        return cart;
     }
 
-    public void setCart_id(Cart cart_id) {
-        this.cart_id = cart_id;
+    public void setCart(Cart cart) {
+        this.cart = cart;
     }
 
-    public Product getProduct_id() {
-        return product_id;
+    public ProductVariant getProductVariant() {
+        return productVariant;
     }
 
-    public void setProduct_id(Product product_id) {
-        this.product_id = product_id;
+    public void setProductVariant(ProductVariant productVariant) {
+        this.productVariant = productVariant;
     }
+
+    // --- XÓA CÁC HÀM CŨ ---
+    // (Xóa get/set cho product_id, color_id, size_id)
 }

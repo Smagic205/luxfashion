@@ -1,15 +1,8 @@
 package com.example.Backend.entity;
 
 import java.util.List;
-
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
-import jakarta.persistence.ManyToOne;
-import jakarta.persistence.OneToMany;
-import jakarta.persistence.Table;
+import jakarta.persistence.*;
+import org.hibernate.annotations.Formula; // <-- Import Formula
 
 @Entity
 @Table(name = "products")
@@ -19,54 +12,58 @@ public class Product {
     private Long id;
 
     private String name;
-    private Double price;
-    private int quantity;
+    private Double price; // Giá gốc
+    // private int quantity; // <-- XÓA DÒNG NÀY
 
     @Column(columnDefinition = "TEXT")
     private String description;
 
     @ManyToOne
+    @JoinColumn(name = "category_id")
     private Category category_id;
-    
+
     @ManyToOne
+    @JoinColumn(name = "category_product_id")
     private CategoryProduct categoryProduct_id;
 
     @ManyToOne
-    private Supplier supplier_id;
+    @JoinColumn(name = "supplier_id")
+    private Supplier supplier_id; // Dùng để lọc "hãng"
 
-    @OneToMany(mappedBy = "product_id")
+    @OneToMany(mappedBy = "product_id", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Image> images;
-    
-    @OneToMany(mappedBy = "product_id")
-    private List<ProductColor> productColors;
 
-    @OneToMany(mappedBy = "product_id")
-    private List<ProductSize> productSizes;
     @OneToMany(mappedBy = "product_id")
     private List<PromotionDetail> promotionDetails;
-    
-    public List<PromotionDetail> getPromotionDetails() {
-        return promotionDetails;
-    }
 
-    public void setPromotionDetails(List<PromotionDetail> promotionDetails) {
-        this.promotionDetails = promotionDetails;
-    }
+    // --- THÊM QUAN HỆ VỚI REVIEW (Đã yêu cầu ở lọc) ---
+    @OneToMany(mappedBy = "product", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<Review> reviews;
 
+    // --- THÊM TRƯỜNG TỰ TÍNH RATING (Đã yêu cầu ở lọc) ---
+    @Formula("(SELECT COALESCE(AVG(r.rating), 0.0) FROM reviews r WHERE r.product_id = id)")
+    private Double averageRating;
+
+    // --- THÊM TRƯỜNG MỚI (Biến thể) ---
+    @OneToMany(mappedBy = "product", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<ProductVariant> variants;
+
+    // Constructor mặc định
     public Product() {
     }
 
-    public Product(String name, Double price, int quantity, String description, Category category_id, CategoryProduct categoryProduct_id, Supplier supplier_id) {
+    // Cập nhật Constructor (bỏ quantity)
+    public Product(String name, Double price, String description, Category category_id,
+            CategoryProduct categoryProduct_id, Supplier supplier_id) {
         this.name = name;
         this.price = price;
-        this.quantity = quantity;
         this.description = description;
         this.category_id = category_id;
         this.categoryProduct_id = categoryProduct_id;
         this.supplier_id = supplier_id;
     }
 
-    // Getters and Setters
+    // --- Getters and Setters ---
     public Long getId() {
         return id;
     }
@@ -89,14 +86,6 @@ public class Product {
 
     public void setPrice(Double price) {
         this.price = price;
-    }
-
-    public int getQuantity() {
-        return quantity;
-    }
-
-    public void setQuantity(int quantity) {
-        this.quantity = quantity;
     }
 
     public String getDescription() {
@@ -139,19 +128,37 @@ public class Product {
         this.images = images;
     }
 
-    public List<ProductColor> getProductColors() {
-        return productColors;
+    public List<PromotionDetail> getPromotionDetails() {
+        return promotionDetails;
     }
 
-    public void setProductColors(List<ProductColor> productColors) {
-        this.productColors = productColors;
+    public void setPromotionDetails(List<PromotionDetail> promotionDetails) {
+        this.promotionDetails = promotionDetails;
     }
 
-    public List<ProductSize> getProductSizes() {
-        return productSizes;
+    // --- THÊM/SỬA CÁC HÀM MỚI ---
+    public List<Review> getReviews() {
+        return reviews;
     }
 
-    public void setProductSizes(List<ProductSize> productSizes) {
-        this.productSizes = productSizes;
+    public void setReviews(List<Review> reviews) {
+        this.reviews = reviews;
     }
+
+    public Double getAverageRating() {
+        return averageRating;
+    }
+
+    public void setAverageRating(Double averageRating) {
+        this.averageRating = averageRating;
+    }
+
+    public List<ProductVariant> getVariants() {
+        return variants;
+    }
+
+    public void setVariants(List<ProductVariant> variants) {
+        this.variants = variants;
+    }
+
 }

@@ -18,9 +18,6 @@ public class Color {
 
     private String name;
 
-    @OneToMany(mappedBy = "color_id")
-    private List<ProductColor> productColors;
-
     public Color() {
     }
 
@@ -45,11 +42,4 @@ public class Color {
         this.name = name;
     }
 
-    public List<ProductColor> getProductColors() {
-        return productColors;
-    }
-
-    public void setProductColors(List<ProductColor> productColors) {
-        this.productColors = productColors;
-    }
 }

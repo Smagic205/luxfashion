@@ -4,23 +4,19 @@ import java.util.List;
 
 public class ProductRequestDTO {
     private String name;
-    private Double price;
-    private int quantity;
+    private Double price; // Giá gốc
+
     private String description;
 
     private Long categoryId;
     private Long categoryProductId;
     private Long supplierId;
 
-    // Danh sách các URL ảnh
     private List<String> imageUrls;
 
-    // Danh sách các ID màu và ID kích cỡ
-    private List<Long> colorIds;
-    private List<Long> sizeIds;
+    private List<VariantRequestDTO> variants; // Danh sách các biến thể
 
-    // Getters and Setters (Bạn tự generate nhé)
-    // ...
+    // --- Getters and Setters ---
     public String getName() {
         return name;
     }
@@ -35,14 +31,6 @@ public class ProductRequestDTO {
 
     public void setPrice(Double price) {
         this.price = price;
-    }
-
-    public int getQuantity() {
-        return quantity;
-    }
-
-    public void setQuantity(int quantity) {
-        this.quantity = quantity;
     }
 
     public String getDescription() {
@@ -85,19 +73,11 @@ public class ProductRequestDTO {
         this.imageUrls = imageUrls;
     }
 
-    public List<Long> getColorIds() {
-        return colorIds;
+    public List<VariantRequestDTO> getVariants() {
+        return variants;
     }
 
-    public void setColorIds(List<Long> colorIds) {
-        this.colorIds = colorIds;
-    }
-
-    public List<Long> getSizeIds() {
-        return sizeIds;
-    }
-
-    public void setSizeIds(List<Long> sizeIds) {
-        this.sizeIds = sizeIds;
+    public void setVariants(List<VariantRequestDTO> variants) {
+        this.variants = variants;
     }
 }
