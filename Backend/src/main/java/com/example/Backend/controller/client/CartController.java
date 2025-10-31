@@ -7,8 +7,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
-@RequestMapping("/api/cart") // API cho người dùng (public/user)
-// @CrossOrigin(origins = "http://localhost:5173") // Xóa nếu dùng WebConfig
+@RequestMapping("/api/cart")
+
 public class CartController {
 
     @Autowired

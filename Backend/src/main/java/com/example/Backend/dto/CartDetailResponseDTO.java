@@ -1,16 +1,20 @@
 package com.example.Backend.dto;
 
 import com.example.Backend.entity.CartDetail;
+import com.example.Backend.entity.Product; // <-- 1. THÊM IMPORT NÀY
+import com.example.Backend.entity.Image; // <-- 2. THÊM IMPORT NÀY
 
+// DTO để "trả về" thông tin của 1 món hàng trong giỏ
 public class CartDetailResponseDTO {
     private Long cartDetailId;
     private int quantity;
-    private Double price;
-
+    private Double price; // Giá đã lưu
     private Long variantId; // ID của biến thể
     private SimpleInfoDTO product; // Tên/ID sản phẩm cha
     private SimpleInfoDTO color;
     private SimpleInfoDTO size;
+
+    private String imageUrl; // <-- 3. THÊM TRƯỜNG MỚI
 
     public CartDetailResponseDTO(CartDetail cartDetail) {
         this.cartDetailId = cartDetail.getId();
@@ -20,16 +24,32 @@ public class CartDetailResponseDTO {
         if (cartDetail.getProductVariant() != null) {
             this.variantId = cartDetail.getProductVariant().getId();
 
-            if (cartDetail.getProductVariant().getProduct() != null) {
+            // Lấy sản phẩm cha (parent Product)
+            Product parentProduct = cartDetail.getProductVariant().getProduct();
+
+            if (parentProduct != null) {
+                // Gán thông tin sản phẩm
                 this.product = new SimpleInfoDTO(
-                        cartDetail.getProductVariant().getProduct().getId(),
-                        cartDetail.getProductVariant().getProduct().getName());
+                        parentProduct.getId(),
+                        parentProduct.getName());
+
+                // --- 4. THÊM LOGIC LẤY ẢNH TẠI ĐÂY ---
+                if (parentProduct.getImages() != null && !parentProduct.getImages().isEmpty()) {
+                    Image firstImage = parentProduct.getImages().get(0); // Lấy ảnh đầu tiên
+                    if (firstImage != null) {
+                        this.imageUrl = firstImage.getUrl(); // Gán URL
+                    }
+                }
+                // -------------------------------------
             }
+
+            // Gán thông tin màu
             if (cartDetail.getProductVariant().getColor() != null) {
                 this.color = new SimpleInfoDTO(
                         cartDetail.getProductVariant().getColor().getId(),
                         cartDetail.getProductVariant().getColor().getName());
             }
+            // Gán thông tin size
             if (cartDetail.getProductVariant().getSize() != null) {
                 this.size = new SimpleInfoDTO(
                         cartDetail.getProductVariant().getSize().getId(),
@@ -38,60 +58,42 @@ public class CartDetailResponseDTO {
         }
     }
 
+    // --- Getters (Bắt buộc) ---
+    // (Giữ nguyên các Getters cũ của bạn)
     public Long getCartDetailId() {
         return cartDetailId;
-    }
-
-    public void setCartDetailId(Long cartDetailId) {
-        this.cartDetailId = cartDetailId;
     }
 
     public int getQuantity() {
         return quantity;
     }
 
-    public void setQuantity(int quantity) {
-        this.quantity = quantity;
-    }
-
     public Double getPrice() {
         return price;
-    }
-
-    public void setPrice(Double price) {
-        this.price = price;
     }
 
     public Long getVariantId() {
         return variantId;
     }
 
-    public void setVariantId(Long variantId) {
-        this.variantId = variantId;
-    }
-
     public SimpleInfoDTO getProduct() {
         return product;
-    }
-
-    public void setProduct(SimpleInfoDTO product) {
-        this.product = product;
     }
 
     public SimpleInfoDTO getColor() {
         return color;
     }
 
-    public void setColor(SimpleInfoDTO color) {
-        this.color = color;
-    }
-
     public SimpleInfoDTO getSize() {
         return size;
     }
 
-    public void setSize(SimpleInfoDTO size) {
-        this.size = size;
+    // --- 5. THÊM GETTER/SETTER CHO ẢNH ---
+    public String getImageUrl() {
+        return imageUrl;
     }
 
+    public void setImageUrl(String imageUrl) {
+        this.imageUrl = imageUrl;
+    }
 }

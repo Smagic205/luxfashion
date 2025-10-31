@@ -22,7 +22,7 @@ public class ProductPublicController {
     @GetMapping("/featured")
     public List<ProductCardDTO> getFeaturedProducts() {
         List<ProductCardDTO> featuredProducts = productService.getFeaturedProducts();
-        return featuredProducts.stream().limit(9).collect(Collectors.toList());
+        return featuredProducts.stream().collect(Collectors.toList());
     }
 
     /**
