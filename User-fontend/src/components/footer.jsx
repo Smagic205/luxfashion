@@ -14,10 +14,10 @@ export default function Footer() {
         <div>
           <h3 className="text-lg font-semibold text-white mb-3">Nhà phát triển</h3>
           <ul className="space-y-2 text-sm">
-            <li className="hover:text-white transition"> Trần Huy Sơn</li>
+            <li className="hover:text-white transition"> Trần Huy Sơn </li>
             <li className="hover:text-white transition"> Trần Đức Thắng</li>
             <li className="hover:text-white transition"> Nguyễn Minh Sơn</li>
-            <li className="hover:text-white transition"> Phạm Việt trung</li>
+            <li className="hover:text-white transition"> Phạm Việt Trung</li>
             <li className="hover:text-white transition"> Nguyễn Văn Quốc Thái</li>
           </ul>
         </div>
@@ -43,7 +43,7 @@ export default function Footer() {
 
           {/* Mạng xã hội */}
           <div className=" mt-4">
-            <a href="https://facebook.com" target="_blank" rel="noreferrer">
+            <a href="https://www.facebook.com/share/1BwfQcHehr/" target="_blank" rel="noreferrer">
               <i className="fab fa-facebook-f text-white hover:text-blue-400 m-2"></i>
             </a>
             <a href="https://instagram.com" target="_blank" rel="noreferrer">

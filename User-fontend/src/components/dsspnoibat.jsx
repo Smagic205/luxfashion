@@ -16,9 +16,9 @@ export default function ProductSection({ apiUrl }) {
 
         if (data && Array.isArray(data.data)) {
           const mapped = data.data.map((p) => {
-            // ✅ Lấy ảnh từ trường imageUrl
-            const imageLink = p.imageUrl || "http://localhost:8080/images/no-image.png";
-            console.log("Link ảnh sản phẩm:", imageLink); // log link ảnh để kiểm tra
+           
+            const imageLink = p.imageUrl ;
+            
 
             return {
               id: p.id,

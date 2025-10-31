@@ -12,6 +12,7 @@ import ThongTinKhachHang from './pages/thongtinkhachhang';
 import GioHang from "./pages/giohang";
 import TaiKhoan from "./pages/taikhoan";
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
+import ChiTietSP from "./pages/chitietsp";
 
 function App() {
   return (
@@ -33,7 +34,7 @@ function App() {
           <Route path="/giohang" element={<GioHang />} />
           <Route path="/taikhoan" element={<TaiKhoan />} />
 
-          {/* Nếu nhập sai đường dẫn */}
+          <Route path="/chitietsp" element={<ChiTietSP/>}/>
           
         </Routes>
         
