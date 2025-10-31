@@ -1,9 +1,9 @@
 import React from "react";
 import { Link  } from "react-router-dom";
 
-const ProductCard = ({ image, name, brand, rating, price, sale }) => {
+const ProductCard = ({ image, name, brand, rating, price, sale, id }) => {
   return (
-    <Link to="/chitietsp">
+    <Link to={`/chitietsp/${id}`}>
     <div className="bg-white rounded-2xl shadow-2xl p-4 hover:scale-105 transition-transform duration-300 cursor-pointer">
       {/* Ảnh sản phẩm */}
       <div className="w-full h-56 overflow-hidden rounded-xl">

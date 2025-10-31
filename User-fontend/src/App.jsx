@@ -34,7 +34,7 @@ function App() {
           <Route path="/giohang" element={<GioHang />} />
           <Route path="/taikhoan" element={<TaiKhoan />} />
 
-          <Route path="/chitietsp" element={<ChiTietSP/>}/>
+          <Route path="/chitietsp/:id" element={<ChiTietSP/>}/>
           
         </Routes>
         
