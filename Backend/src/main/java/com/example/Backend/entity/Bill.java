@@ -3,6 +3,7 @@ package com.example.Backend.entity;
 import java.time.LocalDateTime;
 import java.util.List;
 
+import jakarta.persistence.CascadeType;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
@@ -19,28 +20,26 @@ public class Bill {
     private Long id;
 
     private LocalDateTime createdAt;
-    private String status;
+    private String status; // Vd: PENDING, PROCESSING, DELIVERED, CANCELLED
     private Double totalAmount;
-    private String note;
 
     @ManyToOne
-    private User user;
+    private User user; // Người đặt hàng
 
-    @OneToMany(mappedBy = "bill_id")
+    // --- THÔNG TIN GIAO HÀNG (SAO LƯU TẠI THỜI ĐIỂM ĐẶT) ---
+    private String shippingName; // Tên người nhận
+    private String shippingAddress; // Địa chỉ nhận
+    private String shippingPhone; // SĐT nhận
+    private String shippingNote; // Ghi chú của khách
+
+    @OneToMany(mappedBy = "bill", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<BillDetail> billDetails;
 
     public Bill() {
     }
 
-    public Bill(LocalDateTime createdAt, String status, Double totalAmount, String note, User user) {
-        this.createdAt = createdAt;
-        this.status = status;
-        this.totalAmount = totalAmount;
-        this.note = note;
-        this.user = user;
-    }
+    // --- Getters and Setters (Bao gồm các trường mới) ---
 
-    // Getters and Setters
     public Long getId() {
         return id;
     }
@@ -73,20 +72,44 @@ public class Bill {
         this.totalAmount = totalAmount;
     }
 
-    public String getNote() {
-        return note;
-    }
-
-    public void setNote(String note) {
-        this.note = note;
-    }
-
     public User getUser() {
         return user;
     }
 
     public void setUser(User user) {
         this.user = user;
+    }
+
+    public String getShippingName() {
+        return shippingName;
+    }
+
+    public void setShippingName(String shippingName) {
+        this.shippingName = shippingName;
+    }
+
+    public String getShippingAddress() {
+        return shippingAddress;
+    }
+
+    public void setShippingAddress(String shippingAddress) {
+        this.shippingAddress = shippingAddress;
+    }
+
+    public String getShippingPhone() {
+        return shippingPhone;
+    }
+
+    public void setShippingPhone(String shippingPhone) {
+        this.shippingPhone = shippingPhone;
+    }
+
+    public String getShippingNote() {
+        return shippingNote;
+    }
+
+    public void setShippingNote(String shippingNote) {
+        this.shippingNote = shippingNote;
     }
 
     public List<BillDetail> getBillDetails() {

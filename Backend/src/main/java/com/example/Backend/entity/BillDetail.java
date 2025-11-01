@@ -6,6 +6,7 @@ import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
+import jakarta.persistence.JoinColumn; // Thêm import này
 
 @Entity
 @Table(name = "bill_details")
@@ -14,30 +15,36 @@ public class BillDetail {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    // Comment: Đổi tên từ 'bill_id' thành 'bill' cho đúng chuẩn
+    // 'JoinColumn' đảm bảo tên cột trong DB vẫn là 'bill_id'
     @ManyToOne
-    private Bill bill_id;
+    @JoinColumn(name = "bill_id") // Giữ tên cột DB
+    private Bill bill;
 
+    // Comment: Đây là thay đổi quan trọng nhất!
+    // Liên kết với biến thể (Màu+Size) thay vì sản phẩm cha
     @ManyToOne
-    private Product product_id;
+    @JoinColumn(name = "product_variant_id") // Đặt tên cột DB
+    private ProductVariant productVariant;
 
-    private String description;
+    // private String description; // Ghi chú: Có thể không cần trường này
     private String note;
     private int quantity;
-    private Double price;
+    private Double price; // Giá tại thời điểm mua
 
     public BillDetail() {
     }
 
-    public BillDetail(Bill bill_id, Product product_id, String description, String note, int quantity, Double price) {
-        this.bill_id = bill_id;
-        this.product_id = product_id;
-        this.description = description;
+    // Constructor đã được cập nhật
+    public BillDetail(Bill bill, ProductVariant productVariant, String note, int quantity, Double price) {
+        this.bill = bill;
+        this.productVariant = productVariant;
         this.note = note;
         this.quantity = quantity;
         this.price = price;
     }
 
-    // Getters and Setters
+    // --- Getters and Setters (Đã cập nhật) ---
     public Long getId() {
         return id;
     }
@@ -46,28 +53,20 @@ public class BillDetail {
         this.id = id;
     }
 
-    public Bill getBill_id() {
-        return bill_id;
+    public Bill getBill() {
+        return bill;
     }
 
-    public void setBill_id(Bill bill_id) {
-        this.bill_id = bill_id;
+    public void setBill(Bill bill) {
+        this.bill = bill;
     }
 
-    public Product getProduct_id() {
-        return product_id;
+    public ProductVariant getProductVariant() {
+        return productVariant;
     }
 
-    public void setProduct_id(Product product_id) {
-        this.product_id = product_id;
-    }
-
-    public String getDescription() {
-        return description;
-    }
-
-    public void setDescription(String description) {
-        this.description = description;
+    public void setProductVariant(ProductVariant productVariant) {
+        this.productVariant = productVariant;
     }
 
     public String getNote() {
