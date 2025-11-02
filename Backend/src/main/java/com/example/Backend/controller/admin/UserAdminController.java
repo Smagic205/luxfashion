@@ -1,4 +1,4 @@
-package com.example.Backend.controller;
+package com.example.Backend.controller.admin;
 
 import com.example.Backend.dto.UserCreateRequestDTO;
 import com.example.Backend.dto.UserResponseDTO;

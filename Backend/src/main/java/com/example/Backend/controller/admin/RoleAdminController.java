@@ -1,4 +1,4 @@
-package com.example.Backend.controller;
+package com.example.Backend.controller.admin;
 
 import com.example.Backend.dto.RoleRequestDTO;
 import com.example.Backend.dto.RoleResponseDTO;

@@ -1,5 +1,6 @@
 package com.example.Backend.repository;
 
+import com.example.Backend.entity.Category;
 import com.example.Backend.entity.Product;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.JpaSpecificationExecutor; // <-- 1. THÊM IMPORT NÀY
@@ -22,4 +23,6 @@ public interface ProductRepository extends JpaRepository<Product, Long>, JpaSpec
 
     // --- 3. XÓA HOÀN TOÀN HÀM GÂY LỖI ---
     // List<Product> findByCategory_id_Id(Long categoryId);
+    @Query("SELECT COUNT(p) FROM Product p WHERE p.category_id = :category")
+    long countByCategory_id(@Param("category") Category category);
 }
