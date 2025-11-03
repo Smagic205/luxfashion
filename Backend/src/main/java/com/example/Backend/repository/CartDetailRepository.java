@@ -12,7 +12,7 @@ import java.util.Optional;
 @Repository
 public interface CartDetailRepository extends JpaRepository<CartDetail, Long> {
 
-    // Sửa lại Query để tìm theo 'cart' (tên trường mới) và 'productVariant'
+    // Query để tìm theo 'cart' (tên trường mới) và 'productVariant'
     @Query("SELECT cd FROM CartDetail cd WHERE cd.cart = :cart AND cd.productVariant = :variant")
     Optional<CartDetail> findExistingDetail(
             @Param("cart") Cart cart,
