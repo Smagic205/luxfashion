@@ -15,14 +15,12 @@ public class ProductResponseDTO {
     private Double salePrice;
     private Double discountPercentage;
     private Double averageRating; // <-- THÊM
-
+    private SimpleInfoDTO promotion;
     private SimpleInfoDTO category;
     private SimpleInfoDTO categoryProduct;
     private SimpleInfoDTO supplier;
 
     private List<String> images;
-    // private List<SimpleInfoDTO> colors; // <-- XÓA
-    // private List<SimpleInfoDTO> sizes; // <-- XÓA
 
     private List<VariantResponseDTO> variants; // <-- THÊM
     private int totalQuantity; // <-- THÊM
@@ -39,10 +37,7 @@ public class ProductResponseDTO {
             this.category = new SimpleInfoDTO(product.getCategory_id().getId(), product.getCategory_id().getName());
         }
         // Map categoryProduct
-        if (product.getCategoryProduct_id() != null) {
-            this.categoryProduct = new SimpleInfoDTO(product.getCategoryProduct_id().getId(),
-                    product.getCategoryProduct_id().getName());
-        }
+
         // Map supplier
         if (product.getSupplier_id() != null) {
             this.supplier = new SimpleInfoDTO(product.getSupplier_id().getId(), product.getSupplier_id().getName());
@@ -72,6 +67,14 @@ public class ProductResponseDTO {
     // --- Getters and Setters (Đầy đủ) ---
     public Long getId() {
         return id;
+    }
+
+    public SimpleInfoDTO getPromotion() {
+        return promotion;
+    }
+
+    public void setPromotion(SimpleInfoDTO promotion) {
+        this.promotion = promotion;
     }
 
     public void setId(Long id) {

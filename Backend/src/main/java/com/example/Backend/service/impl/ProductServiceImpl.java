@@ -3,6 +3,7 @@ package com.example.Backend.service.impl;
 import com.example.Backend.dto.ProductCardDTO;
 import com.example.Backend.dto.ProductRequestDTO;
 import com.example.Backend.dto.ProductResponseDTO;
+import com.example.Backend.dto.SimpleInfoDTO;
 import com.example.Backend.dto.ProductFilterDTO; // Import DTO lọc
 import com.example.Backend.dto.VariantRequestDTO; // Import DTO con
 import com.example.Backend.entity.*; // Import Entities
@@ -29,10 +30,13 @@ public class ProductServiceImpl implements ProductService {
         private ProductRepository productRepository;
         @Autowired
         private CategoryRepository categoryRepository;
-        @Autowired
-        private CategoryProductRepository categoryProductRepository;
+
         @Autowired
         private SupplierRepository supplierRepository;
+        @Autowired
+        private PromotionRepository promotionRepository;
+        @Autowired
+        private PromotionDetailRepository promotionDetailRepository;
         @Autowired
         private ImageRepository imageRepository;
         @Autowired
@@ -79,7 +83,6 @@ public class ProductServiceImpl implements ProductService {
                 return null;
         }
 
-        // Sửa Hàm helper map sang ProductCardDTO (tính tổng quantity và rating)
         private ProductCardDTO mapToProductCardDTO(Product product) {
                 ProductCardDTO dto = new ProductCardDTO();
                 if (product == null)
@@ -88,23 +91,23 @@ public class ProductServiceImpl implements ProductService {
                 dto.setId(product.getId());
                 dto.setName(product.getName());
                 dto.setOriginalPrice(product.getPrice());
-                // Lấy rating trung bình (từ @Formula)
-                dto.setAverageRating(product.getAverageRating());
+                dto.setAverageRating(product.getAverageRating()); // Lấy rating trung bình
 
-                // Tính tổng quantity từ các variants
+                // ... (Giữ nguyên logic tính totalQuantity)
                 int totalQuantity = 0;
                 if (product.getVariants() != null) {
                         totalQuantity = product.getVariants().stream()
-                                        .mapToInt(ProductVariant::getQuantity) // Lấy quantity của từng variant
-                                        .sum(); // Tính tổng
+                                        .mapToInt(ProductVariant::getQuantity)
+                                        .sum();
                 }
-                dto.setTotalQuantity(totalQuantity); // Gán tổng số lượng
+                dto.setTotalQuantity(totalQuantity);
 
-                // Lấy tên Supplier
+                // ... (Giữ nguyên logic lấy supplierName)
                 if (product.getSupplier_id() != null) {
                         dto.setSupplierName(product.getSupplier_id().getName());
                 }
-                // Lấy ảnh đầu tiên
+
+                // ... (Giữ nguyên logic lấy imageUrl)
                 if (product.getImages() != null && !product.getImages().isEmpty()) {
                         Image firstImage = product.getImages().get(0);
                         if (firstImage != null) {
@@ -114,23 +117,30 @@ public class ProductServiceImpl implements ProductService {
 
                 // Tính giá sale (Giữ nguyên logic)
                 Promotion activePromotion = findActivePromotion(product);
+
                 if (activePromotion != null && activePromotion.getDiscountPercentage() != null
                                 && product.getPrice() != null) {
+
+                        // (Phần logic cũ của bạn)
                         double discount = activePromotion.getDiscountPercentage();
                         double originalPrice = product.getPrice();
                         discount = Math.max(0.0, Math.min(100.0, discount));
                         double salePrice = originalPrice * (1 - (discount / 100.0));
                         dto.setSalePrice(Math.round(salePrice * 1.0) / 1.0);
                         dto.setDiscountPercentage(discount);
+
+                        dto.setPromotionName(activePromotion.getName());
+                        // ------------------------------
+
                 } else {
                         dto.setSalePrice(product.getPrice());
                         dto.setDiscountPercentage(0.0);
+
                 }
 
                 return dto;
         }
 
-        // Hàm helper map Product sang ResponseDTO có giá sale
         private ProductResponseDTO mapProductToResponseDTOWithSale(Product product) {
                 // Constructor của ProductResponseDTO (phiên bản mới) đã tự động map các
                 // variants
@@ -138,6 +148,7 @@ public class ProductServiceImpl implements ProductService {
 
                 // Logic tính giá sale vẫn áp dụng cho giá gốc (originalPrice)
                 Promotion activePromotion = findActivePromotion(product);
+
                 if (activePromotion != null && activePromotion.getDiscountPercentage() != null
                                 && product.getPrice() != null) {
                         double discount = activePromotion.getDiscountPercentage();
@@ -146,9 +157,13 @@ public class ProductServiceImpl implements ProductService {
                         double salePrice = originalPrice * (1 - (discount / 100.0));
                         dto.setSalePrice(Math.round(salePrice * 1.0) / 1.0);
                         dto.setDiscountPercentage(discount);
+                        dto.setPromotion(new SimpleInfoDTO(activePromotion.getId(), activePromotion.getName()));
+                        // -----------------------------
+
                 } else {
                         dto.setSalePrice(product.getPrice());
                         dto.setDiscountPercentage(0.0);
+                        // (Không gán promotion nếu không có)
                 }
                 return dto;
         }
@@ -185,15 +200,15 @@ public class ProductServiceImpl implements ProductService {
                 if (request == null) {
                         throw new IllegalArgumentException("Product request cannot be null.");
                 }
-                if (request.getCategoryId() == null || request.getCategoryProductId() == null
+                if (request.getCategoryId() == null
                                 || request.getSupplierId() == null) {
-                        throw new IllegalArgumentException("Category, CategoryProduct, and Supplier IDs are required.");
+                        throw new IllegalArgumentException(
+                                        "Category, CategoryProduct,Promotion and Supplier IDs are required.");
                 }
 
                 Category category = categoryRepository.findById(request.getCategoryId())
                                 .orElseThrow(() -> new ResourceNotFoundException("Category not found"));
-                CategoryProduct categoryProduct = categoryProductRepository.findById(request.getCategoryProductId())
-                                .orElseThrow(() -> new ResourceNotFoundException("CategoryProduct not found"));
+
                 Supplier supplier = supplierRepository.findById(request.getSupplierId())
                                 .orElseThrow(() -> new ResourceNotFoundException("Supplier not found"));
 
@@ -202,7 +217,7 @@ public class ProductServiceImpl implements ProductService {
                                 request.getName(),
                                 request.getPrice(), // Giá gốc
                                 request.getDescription(),
-                                category, categoryProduct, supplier);
+                                category, supplier);
                 // Lưu Product trước để lấy ID (quan trọng cho Cascade)
                 Product savedProduct = productRepository.save(product);
 
@@ -249,9 +264,26 @@ public class ProductServiceImpl implements ProductService {
                         // Lưu các variant mới vào DB
                         productVariantRepository.saveAll(variants);
                 }
-                savedProduct.setVariants(variants); // Gán list vào entity
+                savedProduct.setVariants(variants);
+                if (request.getPromotionIds() != null && !request.getPromotionIds().isEmpty()) {
+                        List<PromotionDetail> promoDetails = new ArrayList<>();
 
-                // 5. Trả về DTO (đã được cập nhật để đọc variants)
+                        for (Long promoId : request.getPromotionIds()) {
+                                Promotion promotion = promotionRepository.findById(promoId)
+                                                .orElseThrow(() -> new ResourceNotFoundException(
+                                                                "Promotion not found: " + promoId));
+
+                                PromotionDetail detail = new PromotionDetail();
+                                detail.setProduct_id(savedProduct);
+                                detail.setPromotion_id(promotion);
+                                detail.setStatus("ACTIVE");
+
+                                promoDetails.add(detail);
+                        }
+
+                        promotionDetailRepository.saveAll(promoDetails);
+                }
+
                 return mapProductToResponseDTOWithSale(savedProduct);
         }
 
@@ -269,15 +301,14 @@ public class ProductServiceImpl implements ProductService {
                 // Cập nhật thông tin cơ bản
                 Category category = categoryRepository.findById(request.getCategoryId())
                                 .orElseThrow(() -> new ResourceNotFoundException("Category not found"));
-                CategoryProduct categoryProduct = categoryProductRepository.findById(request.getCategoryProductId())
-                                .orElseThrow(() -> new ResourceNotFoundException("CategoryProduct not found"));
+
                 Supplier supplier = supplierRepository.findById(request.getSupplierId())
                                 .orElseThrow(() -> new ResourceNotFoundException("Supplier not found"));
                 existingProduct.setName(request.getName());
                 existingProduct.setPrice(request.getPrice());
                 existingProduct.setDescription(request.getDescription());
                 existingProduct.setCategory_id(category);
-                existingProduct.setCategoryProduct_id(categoryProduct);
+
                 existingProduct.setSupplier_id(supplier);
 
                 // Xử lý Images (Xóa cũ, thêm mới)

@@ -30,19 +30,30 @@ public class ProductPublicController {
      */
     @GetMapping
     public List<ProductCardDTO> getAllPublicProducts(
-            // Các tham số lọc từ UI
+            // --- THÊM 2 DÒNG LỌC MỚI ---
+            @RequestParam(required = false) String name, // Lọc theo tên
+            @RequestParam(required = false) List<Long> sizeIds, // Lọc theo size
+
+            // --- CÁC BỘ LỌC CŨ (Giữ nguyên) ---
             @RequestParam(required = false) Long categoryId,
-            @RequestParam(required = false) List<Long> supplierIds, // Lọc nhiều hãng
-            @RequestParam(required = false) Double minRating, // Lọc theo đánh giá
+            @RequestParam(required = false) List<Long> supplierIds,
+            @RequestParam(required = false) Double minRating,
             @RequestParam(required = false) Double minPrice,
             @RequestParam(required = false) Double maxPrice,
-            @RequestParam(required = false) List<Long> promotionIds, // Lọc nhiều KM
+            @RequestParam(required = false) List<Long> promotionIds,
 
-            // Tham số sắp xếp (giữ nguyên)
+            // --- SẮP XẾP (Giữ nguyên) ---
             @RequestParam(required = false, defaultValue = "name") String sort,
             @RequestParam(required = false, defaultValue = "asc") String direction) {
+
         // 1. Tạo Filter DTO
         ProductFilterDTO filters = new ProductFilterDTO();
+
+        // --- Gán 2 giá trị mới ---
+        filters.setName(name);
+        filters.setSizeIds(sizeIds);
+
+        // --- Gán các giá trị cũ ---
         filters.setCategoryId(categoryId);
         filters.setSupplierIds(supplierIds);
         filters.setMinRating(minRating);
@@ -51,10 +62,11 @@ public class ProductPublicController {
         filters.setPromotionIds(promotionIds);
 
         // 2. Tạo Sort Object
+        // (Logic này đã hỗ trợ sort theo "id", "name", "price")
         Sort.Direction sortDirection = Sort.Direction.fromString(direction);
         Sort sortObj = Sort.by(sortDirection, sort);
 
-        // 3. Gọi service với cả filter và sort
+        // 3. Gọi service
         return productService.getAllPublicProducts(filters, sortObj);
     }
 

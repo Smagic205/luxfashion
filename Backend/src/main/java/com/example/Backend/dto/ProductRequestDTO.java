@@ -9,9 +9,9 @@ public class ProductRequestDTO {
     private String description;
 
     private Long categoryId;
-    private Long categoryProductId;
-    private Long supplierId;
 
+    private Long supplierId;
+    private List<Long> promotionIds;
     private List<String> imageUrls;
 
     private List<VariantRequestDTO> variants; // Danh sách các biến thể
@@ -49,14 +49,6 @@ public class ProductRequestDTO {
         this.categoryId = categoryId;
     }
 
-    public Long getCategoryProductId() {
-        return categoryProductId;
-    }
-
-    public void setCategoryProductId(Long categoryProductId) {
-        this.categoryProductId = categoryProductId;
-    }
-
     public Long getSupplierId() {
         return supplierId;
     }
@@ -80,4 +72,13 @@ public class ProductRequestDTO {
     public void setVariants(List<VariantRequestDTO> variants) {
         this.variants = variants;
     }
+
+    public List<Long> getPromotionIds() {
+        return promotionIds;
+    }
+
+    public void setPromotionIds(List<Long> promotionIds) {
+        this.promotionIds = promotionIds;
+    }
+
 }

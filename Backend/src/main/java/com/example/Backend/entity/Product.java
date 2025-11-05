@@ -23,10 +23,6 @@ public class Product {
     private Category category_id;
 
     @ManyToOne
-    @JoinColumn(name = "category_product_id")
-    private CategoryProduct categoryProduct_id;
-
-    @ManyToOne
     @JoinColumn(name = "supplier_id")
     private Supplier supplier_id; // Dùng để lọc "hãng"
 
@@ -49,17 +45,21 @@ public class Product {
     private List<ProductVariant> variants;
 
     // Constructor mặc định
+    public Product(String string, Double double1, String string2, Category category,
+            Supplier supplier, Promotion pormotion) {
+    }
+
     public Product() {
     }
 
     // Cập nhật Constructor (bỏ quantity)
     public Product(String name, Double price, String description, Category category_id,
-            CategoryProduct categoryProduct_id, Supplier supplier_id) {
+            Supplier supplier_id) {
         this.name = name;
         this.price = price;
         this.description = description;
         this.category_id = category_id;
-        this.categoryProduct_id = categoryProduct_id;
+
         this.supplier_id = supplier_id;
     }
 
@@ -102,14 +102,6 @@ public class Product {
 
     public void setCategory_id(Category category_id) {
         this.category_id = category_id;
-    }
-
-    public CategoryProduct getCategoryProduct_id() {
-        return categoryProduct_id;
-    }
-
-    public void setCategoryProduct_id(CategoryProduct categoryProduct_id) {
-        this.categoryProduct_id = categoryProduct_id;
     }
 
     public Supplier getSupplier_id() {

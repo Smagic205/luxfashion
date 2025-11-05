@@ -8,13 +8,19 @@ public class ProductCardDTO {
     private Double salePrice;
     private Double discountPercentage;
     private String imageUrl;
-    private Double averageRating; // <-- THÊM (thay thế rating cũ)
-    private int totalQuantity; // <-- THÊM (thay thế quantity cũ)
+
+    private Double averageRating;
+    private int totalQuantity;
+
+    // --- 1. THÊM TRƯỜNG MỚI ---
+    private String promotionName; // Tên của khuyến mãi (ví dụ: "Summer Sale")
 
     public ProductCardDTO() {
     }
 
     // --- Getters and Setters ---
+    // (Giữ nguyên các Getters/Setters cũ)
+
     public Long getId() {
         return id;
     }
@@ -85,5 +91,14 @@ public class ProductCardDTO {
 
     public void setTotalQuantity(int totalQuantity) {
         this.totalQuantity = totalQuantity;
+    }
+
+    // --- 2. THÊM GETTER VÀ SETTER CHO TRƯỜNG MỚI ---
+    public String getPromotionName() {
+        return promotionName;
+    }
+
+    public void setPromotionName(String promotionName) {
+        this.promotionName = promotionName;
     }
 }
