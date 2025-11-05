@@ -15,7 +15,7 @@ public class ProductResponseDTO {
     private Double salePrice;
     private Double discountPercentage;
     private Double averageRating; // <-- THÊM
-    private SimpleInfoDTO promotion;
+    private List<SimpleInfoDTO> promotions;
     private SimpleInfoDTO category;
     private SimpleInfoDTO categoryProduct;
     private SimpleInfoDTO supplier;
@@ -50,31 +50,22 @@ public class ProductResponseDTO {
         }
 
         // --- LOGIC MAP MỚI ---
-        if (product.getVariants() != null) {
-            this.variants = product.getVariants().stream()
-                    .map(VariantResponseDTO::new)
+        if (product.getPromotionDetails() != null) {
+            this.promotions = product.getPromotionDetails().stream()
+                    // Chỉ map những promotion nào không null
+                    .filter(detail -> detail.getPromotion_id() != null)
+                    .map(detail -> new SimpleInfoDTO(
+                            detail.getPromotion_id().getId(),
+                            detail.getPromotion_id().getName()))
                     .collect(Collectors.toList());
-
-            this.totalQuantity = product.getVariants().stream()
-                    .mapToInt(ProductVariant::getQuantity)
-                    .sum();
         } else {
-            this.totalQuantity = 0;
-            this.variants = List.of(); // Trả về list rỗng
+            this.promotions = List.of(); // Trả về list rỗng
         }
     }
 
     // --- Getters and Setters (Đầy đủ) ---
     public Long getId() {
         return id;
-    }
-
-    public SimpleInfoDTO getPromotion() {
-        return promotion;
-    }
-
-    public void setPromotion(SimpleInfoDTO promotion) {
-        this.promotion = promotion;
     }
 
     public void setId(Long id) {
@@ -175,5 +166,13 @@ public class ProductResponseDTO {
 
     public void setTotalQuantity(int totalQuantity) {
         this.totalQuantity = totalQuantity;
+    }
+
+    public List<SimpleInfoDTO> getPromotions() {
+        return promotions;
+    }
+
+    public void setPromotions(List<SimpleInfoDTO> promotions) {
+        this.promotions = promotions;
     }
 }

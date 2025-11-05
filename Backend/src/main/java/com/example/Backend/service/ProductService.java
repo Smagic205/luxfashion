@@ -23,15 +23,13 @@ public interface ProductService {
     // --- User Public ---
     List<ProductCardDTO> getFeaturedProducts(); // Trang chủ
 
+    void addPromotionToProduct(Long productId, Long promotionId);
+
     /**
-     * 3. SỬA LẠI HÀM NÀY:
-     * Lấy sản phẩm công khai, có lọc và sắp xếp động.
-     * 
-     * @param filters DTO chứa các tiêu chí lọc.
-     * @param sort    Đối tượng Sort để sắp xếp.
+     * [ADMIN] Gỡ (xóa) một Promotion khỏi một Product.
      */
+    void removePromotionFromProduct(Long productId, Long promotionId);
+
     List<ProductCardDTO> getAllPublicProducts(ProductFilterDTO filters, Sort sort);
 
-    // --- 4. XÓA HÀM CŨ ---
-    // List<ProductCardDTO> getAllPublicProducts(Long categoryId);
 }

@@ -2,10 +2,12 @@ package com.example.Backend.controller.admin;
 
 import com.example.Backend.dto.PromotionRequestDTO;
 import com.example.Backend.dto.PromotionResponseDTO;
+import com.example.Backend.service.ProductService;
 import com.example.Backend.service.PromotionService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.http.ResponseEntity;
 
 import java.util.List;
 
@@ -15,6 +17,8 @@ public class PromotionAdminController {
 
     @Autowired
     private PromotionService promotionService;
+    @Autowired
+    private ProductService productService;
 
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
@@ -41,5 +45,42 @@ public class PromotionAdminController {
     @ResponseStatus(HttpStatus.NO_CONTENT)
     public void deletePromotion(@PathVariable Long id) {
         promotionService.deletePromotion(id);
+    }
+
+    @PostMapping("/{productId}/promotions")
+    @ResponseStatus(HttpStatus.CREATED)
+    public void addPromotionToProduct(
+            @PathVariable Long productId,
+            @RequestBody AdminPromotionRequestDTO request) {
+
+        productService.addPromotionToProduct(productId, request.getPromotionId());
+    }
+
+    /**
+     * API Xóa một Promotion khỏi Product
+     * [DELETE] http://localhost:8080/api/admin/products/15/promotions/1
+     */
+    @DeleteMapping("/{productId}/promotions/{promotionId}")
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    public void removePromotionFromProduct(
+            @PathVariable Long productId,
+            @PathVariable Long promotionId) {
+
+        productService.removePromotionFromProduct(productId, promotionId);
+    }
+}
+
+/**
+ * Lớp DTO nội bộ (hoặc tạo file DTO riêng) để nhận promotionId từ body
+ */
+class AdminPromotionRequestDTO {
+    private Long promotionId;
+
+    public Long getPromotionId() {
+        return promotionId;
+    }
+
+    public void setPromotionId(Long promotionId) {
+        this.promotionId = promotionId;
     }
 }
