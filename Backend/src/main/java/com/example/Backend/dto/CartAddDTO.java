@@ -1,11 +1,8 @@
 package com.example.Backend.dto;
 
 public class CartAddDTO {
-    // private Long productId; // <-- XÓA
-    // private Long colorId; // <-- XÓA
-    // private Long sizeId; // <-- XÓA
 
-    private Long variantId; // <-- THÊM: ID của biến thể (Màu+Size)
+    private Long variantId;
     private int quantity;
 
     // --- Getters and Setters ---

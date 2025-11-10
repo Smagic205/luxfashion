@@ -43,4 +43,10 @@ public class CartController {
         Long userId = getCurrentUserId();
         return cartService.addToCart(cartAddDTO, userId);
     }
+
+    @DeleteMapping("/remove/{cartDetailId}")
+    public CartResponseDTO removeItemFromCart(@PathVariable Long cartDetailId) {
+        Long userId = getCurrentUserId();
+        return cartService.removeItem(cartDetailId, userId);
+    }
 }
