@@ -44,7 +44,20 @@ public class SecurityConfig {
         public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
                 http
                                 .authorizeHttpRequests(auth -> auth
-                                                // === API CÔNG KHAI (Không cần đăng nhập) ===
+                                                // === 1. API ADMIN (Yêu cầu Role "ADMIN") ===
+                                                // (Giả sử tất cả API Admin của bạn đều có tiền tố /api/admin/)
+                                                .requestMatchers("/api/admin/**").hasRole("ADMIN")
+
+                                                // === 2. API USER (Yêu cầu Role "USER" hoặc "ADMIN") ===
+                                                // (Admin cũng có thể mua hàng/xem profile)
+                                                .requestMatchers(
+                                                                "/api/cart/**",
+                                                                "/api/bills/**",
+                                                                "/api/user/**",
+                                                                "/api/reviews/**")
+                                                .hasAnyRole("USER", "ADMIN")
+
+                                                // === 3. API CÔNG KHAI (Không cần đăng nhập) ===
                                                 .requestMatchers(
                                                                 "/api/products/**",
                                                                 "/api/categories/**",
@@ -53,27 +66,17 @@ public class SecurityConfig {
                                                                 "/api/logout")
                                                 .permitAll()
 
-                                                // === API BẮT BUỘC ĐĂNG NHẬP (Authenticated) ===
-                                                .requestMatchers(
-                                                                "/api/cart/**",
-                                                                "/api/bills/**",
-                                                                "/api/user/**",
-                                                                "/api/reviews/**")
-                                                .authenticated()
+                                                // === 4. Các request khác (Fallback) ===
+                                                // (Bắt buộc phải đăng nhập nếu không khớp các rule trên)
+                                                .anyRequest().authenticated())
 
-                                                // === Các request khác cũng cần đăng nhập ===
-                                                .anyRequest().authenticated()
-
-                                )
-
+                                // (Giữ nguyên các cấu hình còn lại)
                                 .authenticationProvider(authenticationProvider())
                                 .oauth2Login(oauth2 -> oauth2.defaultSuccessUrl("http://localhost:5173/", true))
-
                                 .logout(logout -> logout.logoutUrl("/api/logout")
                                                 .logoutSuccessUrl("http://localhost:5173")
                                                 .deleteCookies("JSESSIONID")
                                                 .permitAll())
-
                                 .csrf(csrf -> csrf.disable())
                                 .cors(cors -> {
                                 });
