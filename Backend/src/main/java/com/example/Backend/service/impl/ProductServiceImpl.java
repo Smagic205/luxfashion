@@ -4,29 +4,28 @@ import com.example.Backend.dto.ProductCardDTO;
 import com.example.Backend.dto.ProductRequestDTO;
 import com.example.Backend.dto.ProductResponseDTO;
 import com.example.Backend.dto.SimpleInfoDTO;
-import com.example.Backend.dto.ProductFilterDTO; // Import DTO lọc
-import com.example.Backend.dto.VariantRequestDTO; // Import DTO con
-import com.example.Backend.entity.*; // Import Entities
+import com.example.Backend.dto.ProductFilterDTO;
+import com.example.Backend.dto.VariantRequestDTO;
+import com.example.Backend.entity.*;
 import com.example.Backend.exception.ResourceNotFoundException;
-import com.example.Backend.repository.*; // Import Repositories
+import com.example.Backend.repository.*;
 import com.example.Backend.service.ProductService;
-import com.example.Backend.service.ProductSpecifications; // Import Specifications helper
+import com.example.Backend.service.ProductSpecifications;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.domain.Sort; // Import Sort
-import org.springframework.data.jpa.domain.Specification; // Import Specification
+import org.springframework.data.domain.Sort;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
-import java.util.Optional; // <-- THÊM IMPORT NÀY
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Service
 public class ProductServiceImpl implements ProductService {
 
-        // --- @Autowired Repositories (Đã cập nhật) ---
         @Autowired
         private ProductRepository productRepository;
         @Autowired
@@ -41,19 +40,12 @@ public class ProductServiceImpl implements ProductService {
         @Autowired
         private ImageRepository imageRepository;
         @Autowired
-        private ColorRepository colorRepository; // Vẫn cần để tìm Color
+        private ColorRepository colorRepository;
         @Autowired
-        private SizeRepository sizeRepository; // Vẫn cần để tìm Size
+        private SizeRepository sizeRepository;
 
         @Autowired
         private ProductVariantRepository productVariantRepository;
-        // (Inject các repo khác nếu cần)
-
-        /**
-         * =======================================================
-         * HÀM HELPER (HỖ TRỢ) NỘI BỘ
-         * =======================================================
-         */
 
         // Tìm sản phẩm theo ID hoặc ném lỗi 404
         private Product findProductById(Long id) {
@@ -90,7 +82,7 @@ public class ProductServiceImpl implements ProductService {
                 dto.setOriginalPrice(product.getPrice());
                 dto.setAverageRating(product.getAverageRating()); // Lấy rating trung bình
 
-                // ... (Giữ nguyên logic tính totalQuantity)
+                // (logic tính totalQuantity)
                 int totalQuantity = 0;
                 if (product.getVariants() != null) {
                         totalQuantity = product.getVariants().stream()
@@ -99,12 +91,12 @@ public class ProductServiceImpl implements ProductService {
                 }
                 dto.setTotalQuantity(totalQuantity);
 
-                // ... (Giữ nguyên logic lấy supplierName)
+                // (logic lấy supplierName)
                 if (product.getSupplier_id() != null) {
                         dto.setSupplierName(product.getSupplier_id().getName());
                 }
 
-                // ... (Giữ nguyên logic lấy imageUrl)
+                // (logic lấy imageUrl)
                 if (product.getImages() != null && !product.getImages().isEmpty()) {
                         Image firstImage = product.getImages().get(0);
                         if (firstImage != null) {
@@ -112,7 +104,7 @@ public class ProductServiceImpl implements ProductService {
                         }
                 }
 
-                // Tính giá sale (Giữ nguyên logic)
+                // Tính giá sale
                 Promotion activePromotion = findActivePromotion(product);
 
                 if (activePromotion != null && activePromotion.getDiscountPercentage() != null
@@ -185,7 +177,6 @@ public class ProductServiceImpl implements ProductService {
                 promotionDetailRepository.delete(linkToRemove);
         }
 
-        // (Giữ nguyên hàm mapProductToResponseDTOWithSale)
         private ProductResponseDTO mapProductToResponseDTOWithSale(Product product) {
                 ProductResponseDTO dto = new ProductResponseDTO(product);
                 Promotion activePromotion = findActivePromotion(product);
@@ -198,9 +189,7 @@ public class ProductServiceImpl implements ProductService {
                         double salePrice = originalPrice * (1 - (discount / 100.0));
                         dto.setSalePrice(Math.round(salePrice * 1.0) / 1.0);
                         dto.setDiscountPercentage(discount);
-                        // Giả sử DTO của bạn đã được sửa để nhận List
-                        // dto.setPromotion(new SimpleInfoDTO(activePromotion.getId(),
-                        // activePromotion.getName()));
+                        ;
                 } else {
                         dto.setSalePrice(product.getPrice());
                         dto.setDiscountPercentage(0.0);
@@ -208,13 +197,6 @@ public class ProductServiceImpl implements ProductService {
                 return dto;
         }
 
-        /**
-         * =======================================================
-         * PHẦN 1: LOGIC CHO ADMIN (CRUD)
-         * =======================================================
-         */
-
-        // (Giữ nguyên hàm getAllProducts)
         @Override
         @Transactional(readOnly = true)
         public List<ProductResponseDTO> getAllProducts() {
@@ -225,7 +207,6 @@ public class ProductServiceImpl implements ProductService {
                                 .collect(Collectors.toList());
         }
 
-        // (Giữ nguyên hàm getProductById)
         @Override
         @Transactional(readOnly = true)
         public ProductResponseDTO getProductById(Long id) {
@@ -233,7 +214,6 @@ public class ProductServiceImpl implements ProductService {
                 return mapProductToResponseDTOWithSale(product);
         }
 
-        // Sửa hàm Create
         @Override
         @Transactional
         public ProductResponseDTO createProduct(ProductRequestDTO request) {
@@ -253,7 +233,7 @@ public class ProductServiceImpl implements ProductService {
                 Supplier supplier = supplierRepository.findById(request.getSupplierId())
                                 .orElseThrow(() -> new ResourceNotFoundException("Supplier not found"));
 
-                // 2. Tạo Product chính (không có quantity)
+                // 2. Tạo Product chính
                 Product product = new Product(
                                 request.getName(),
                                 request.getPrice(), // Giá gốc
@@ -261,7 +241,7 @@ public class ProductServiceImpl implements ProductService {
                                 category, supplier);
                 Product savedProduct = productRepository.save(product);
 
-                // 3. Xử lý Images (giữ nguyên)
+                // 3. Xử lý Images
                 List<Image> images = new ArrayList<>();
                 if (request.getImageUrls() != null && !request.getImageUrls().isEmpty()) {
                         images = request.getImageUrls().stream()
@@ -274,7 +254,7 @@ public class ProductServiceImpl implements ProductService {
                 }
                 savedProduct.setImages(images);
 
-                // 4. XỬ LÝ VARIANTS MỚI (Giữ nguyên)
+                // 4. XỬ LÝ VARIANTS
                 List<ProductVariant> variants = new ArrayList<>();
                 if (request.getVariants() != null && !request.getVariants().isEmpty()) {
                         for (VariantRequestDTO variantDto : request.getVariants()) {
@@ -301,7 +281,7 @@ public class ProductServiceImpl implements ProductService {
                 }
                 savedProduct.setVariants(variants);
 
-                // (Giữ nguyên logic xử lý PromotionIds)
+                // logic xử lý PromotionIds
                 if (request.getPromotionIds() != null && !request.getPromotionIds().isEmpty()) {
                         List<PromotionDetail> promoDetails = new ArrayList<>();
 
@@ -401,38 +381,14 @@ public class ProductServiceImpl implements ProductService {
         public void deleteProduct(Long id) {
                 Product product = findProductById(id);
 
-                // 1. Xóa các liên kết PromotionDetail (thực hiện TODO)
-                // Giả sử Product.java có 'List<PromotionDetail> promotionDetails'
-                // và có Cascade
                 if (product.getPromotionDetails() != null) {
-                        // Nếu không có orphanRemoval, ta phải xóa thủ công
-                        // promotionDetailRepository.deleteAll(product.getPromotionDetails());
 
-                        // Nếu có orphanRemoval=true, chỉ cần clear list
                         product.getPromotionDetails().clear();
                 }
 
-                // 2. Xử lý các bảng tham chiếu KHÁC (Cảnh báo quan trọng)
-                // BẠN KHÔNG NÊN XÓA SẢN PHẨM nếu nó đã tồn tại trong
-                // BillDetail (lịch sử mua hàng) hoặc CartDetail (giỏ hàng của ai đó).
-                // Lỗi 'ConstraintViolationException' sẽ xảy ra nếu bạn cố xóa.
-                // Logic đúng là "soft-delete" (thêm 1 trường status="INACTIVE")
-                // Tuy nhiên, để "fix" hàm delete, chúng ta xóa thủ công liên kết
-                // PromotionDetail như TODO yêu cầu.
-
-                // 3. Xoá Product
-                // (Giả sử Cascade/orphanRemoval đã được set cho Images và Variants)
                 productRepository.delete(product);
         }
 
-        /**
-         * =======================================================
-         * PHẦN 2: LOGIC CHO USER (PUBLIC)
-         * =======================================================
-         */
-
-        // (Giữ nguyên hàm getFeaturedProducts)
-        @Override
         @Transactional(readOnly = true)
         public List<ProductCardDTO> getFeaturedProducts() {
                 List<Product> featuredProducts = productRepository.findProductsByPromotionStatus("ACTIVE");
@@ -442,7 +398,6 @@ public class ProductServiceImpl implements ProductService {
                                 .collect(Collectors.toList());
         }
 
-        // (Giữ nguyên hàm getAllPublicProducts)
         @Override
         @Transactional(readOnly = true)
         public List<ProductCardDTO> getAllPublicProducts(ProductFilterDTO filters, Sort sort) {
@@ -454,21 +409,4 @@ public class ProductServiceImpl implements ProductService {
                                 .collect(Collectors.toList());
         }
 
-        // --- SỬA 5: XÓA 2 HÀM STUB GÂY LỖI Ở CUỐI FILE ---
-        /*
-         * @Override
-         * public void addPromotionToProduct(Long productId, Long promotionId) {
-         * // TODO Auto-generated method stub
-         * throw new
-         * UnsupportedOperationException("Unimplemented method 'addPromotionToProduct'"
-         * );
-         * }
-         * * @Override
-         * public void removePromotionFromProduct(Long productId, Long promotionId) {
-         * // TODO Auto-generated method stub
-         * throw new
-         * UnsupportedOperationException("Unimplemented method 'removePromotionFromProduct'"
-         * );
-         * }
-         */
 }

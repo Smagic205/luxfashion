@@ -15,27 +15,21 @@ public class BillDetail {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    // Comment: Đổi tên từ 'bill_id' thành 'bill' cho đúng chuẩn
-    // 'JoinColumn' đảm bảo tên cột trong DB vẫn là 'bill_id'
     @ManyToOne
-    @JoinColumn(name = "bill_id") // Giữ tên cột DB
+    @JoinColumn(name = "bill_id")
     private Bill bill;
 
-    // Comment: Đây là thay đổi quan trọng nhất!
-    // Liên kết với biến thể (Màu+Size) thay vì sản phẩm cha
     @ManyToOne
     @JoinColumn(name = "product_variant_id") // Đặt tên cột DB
     private ProductVariant productVariant;
 
-    // private String description; // Ghi chú: Có thể không cần trường này
     private String note;
     private int quantity;
-    private Double price; // Giá tại thời điểm mua
+    private Double price;
 
     public BillDetail() {
     }
 
-    // Constructor đã được cập nhật
     public BillDetail(Bill bill, ProductVariant productVariant, String note, int quantity, Double price) {
         this.bill = bill;
         this.productVariant = productVariant;
@@ -44,7 +38,6 @@ public class BillDetail {
         this.price = price;
     }
 
-    // --- Getters and Setters (Đã cập nhật) ---
     public Long getId() {
         return id;
     }

@@ -2,12 +2,10 @@ package com.example.Backend.dto;
 
 import java.util.List;
 
-// DTO chứa TẤT CẢ các tiêu chí lọc
 public class ProductFilterDTO {
 
-    // --- CÁC TRƯỜNG LỌC MỚI ---
-    private String name; // Dùng cho "Tìm kiếm theo tên"
-    private List<Long> sizeIds; // Dùng cho "Lọc theo size"
+    private String name;
+    private List<Long> sizeIds;
 
     // --- CÁC TRƯỜNG LỌC BẠN ĐÃ CÓ ---
     private Long categoryId;
@@ -17,7 +15,6 @@ public class ProductFilterDTO {
     private Double maxPrice;
     private List<Long> promotionIds;
 
-    // --- Getters and Setters cho TẤT CẢ các trường ---
     public String getName() {
         return name;
     }
@@ -34,7 +31,6 @@ public class ProductFilterDTO {
         this.sizeIds = sizeIds;
     }
 
-    // (Getters/Setters cho các trường cũ...)
     public Long getCategoryId() {
         return categoryId;
     }

@@ -6,7 +6,6 @@ public class RestResponse<T> {
     private String message;
     private T data;
 
-    // --- GETTERS AND SETTERS (BẮT BUỘC) ---
     public int getStatusCode() {
         return statusCode;
     }

@@ -12,14 +12,10 @@ public class ProductCardDTO {
     private Double averageRating;
     private int totalQuantity;
 
-    // --- 1. THÊM TRƯỜNG MỚI ---
-    private String promotionName; // Tên của khuyến mãi (ví dụ: "Summer Sale")
+    private String promotionName;
 
     public ProductCardDTO() {
     }
-
-    // --- Getters and Setters ---
-    // (Giữ nguyên các Getters/Setters cũ)
 
     public Long getId() {
         return id;

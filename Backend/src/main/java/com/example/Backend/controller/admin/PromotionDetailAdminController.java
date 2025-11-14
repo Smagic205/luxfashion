@@ -25,10 +25,6 @@ public class PromotionDetailAdminController {
         return promotionDetailService.addProductToPromotion(request);
     }
 
-    /**
-     * API Gỡ sản phẩm khỏi chương trình khuyến mãi
-     * [DELETE] http://localhost:8080/api/admin/promotion-details/{id}
-     */
     @DeleteMapping("/{id}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
     public void removeProductFromPromotion(@PathVariable Long id) {

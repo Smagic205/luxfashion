@@ -16,22 +16,12 @@ public class CartDetail {
     private Long id;
 
     private int quantity;
-    private Double price; // Giá tại thời điểm thêm vào giỏ
+    private Double price;
 
     @ManyToOne
     @JoinColumn(name = "cart_id")
-    private Cart cart; // Đổi tên thành "cart" (chuẩn Java)
+    private Cart cart;
 
-    // --- XÓA CÁC TRƯỜNG CŨ ---
-    // @ManyToOne
-    // private Product product_id;
-    // @ManyToOne
-    // private Color color_id;
-    // @ManyToOne
-    // private Size size_id;
-
-    // --- THÊM TRƯỜNG MỚI ---
-    // Liên kết trực tiếp đến biến thể
     @ManyToOne
     @JoinColumn(name = "product_variant_id", nullable = false)
     private ProductVariant productVariant;
@@ -87,7 +77,4 @@ public class CartDetail {
     public void setProductVariant(ProductVariant productVariant) {
         this.productVariant = productVariant;
     }
-
-    // --- XÓA CÁC HÀM CŨ ---
-    // (Xóa get/set cho product_id, color_id, size_id)
 }

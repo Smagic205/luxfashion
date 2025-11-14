@@ -5,5 +5,6 @@ import com.example.Backend.dto.PromotionDetailResponseDTO;
 
 public interface PromotionDetailService {
     PromotionDetailResponseDTO addProductToPromotion(PromotionDetailRequestDTO request);
+
     void removeProductFromPromotion(Long detailId);
 }

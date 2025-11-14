@@ -1,10 +1,5 @@
 package com.example.Backend.dto;
 
-/**
- * Lớp DTO phụ (nested) đơn giản
- * chỉ dùng để chứa ID và Tên cho các đối tượng liên quan
- * (như Category, Color, Size, Supplier)
- */
 public class SimpleInfoDTO {
     private Long id;
     private String name;

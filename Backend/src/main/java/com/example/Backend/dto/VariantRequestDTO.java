@@ -5,7 +5,6 @@ public class VariantRequestDTO {
     private Long sizeId;
     private int quantity;
 
-    // --- Getters and Setters ---
     public Long getColorId() {
         return colorId;
     }

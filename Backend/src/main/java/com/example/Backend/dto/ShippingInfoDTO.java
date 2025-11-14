@@ -6,7 +6,6 @@ public class ShippingInfoDTO {
     private String phone;
     private String note;
 
-    // Getters and Setters
     public String getName() {
         return name;
     }

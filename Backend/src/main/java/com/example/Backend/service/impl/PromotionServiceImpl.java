@@ -21,20 +21,19 @@ public class PromotionServiceImpl implements PromotionService {
 
     private Promotion findPromotionById(Long id) {
         return promotionRepository.findById(id)
-            .orElseThrow(() -> new ResourceNotFoundException("Promotion not found with id: " + id));
+                .orElseThrow(() -> new ResourceNotFoundException("Promotion not found with id: " + id));
     }
 
     @Override
     @Transactional
     public PromotionResponseDTO createPromotion(PromotionRequestDTO request) {
         Promotion promotion = new Promotion(
-            request.getName(),
-            request.getDescription(),
-            request.getStartDate(),
-            request.getEndDate(),
-            request.getDiscountPercentage(),
-            request.getStatus()
-        );
+                request.getName(),
+                request.getDescription(),
+                request.getStartDate(),
+                request.getEndDate(),
+                request.getDiscountPercentage(),
+                request.getStatus());
         Promotion savedPromotion = promotionRepository.save(promotion);
         return new PromotionResponseDTO(savedPromotion);
     }
@@ -63,7 +62,7 @@ public class PromotionServiceImpl implements PromotionService {
         existingPromotion.setEndDate(request.getEndDate());
         existingPromotion.setDiscountPercentage(request.getDiscountPercentage());
         existingPromotion.setStatus(request.getStatus());
-        
+
         Promotion updatedPromotion = promotionRepository.save(existingPromotion);
         return new PromotionResponseDTO(updatedPromotion);
     }
@@ -72,10 +71,6 @@ public class PromotionServiceImpl implements PromotionService {
     @Transactional
     public void deletePromotion(Long id) {
         Promotion promotion = findPromotionById(id);
-        // Cẩn thận: Nên kiểm tra xem có PromotionDetail nào đang dùng Promotion này không
-        // if (promotion.getPromotionDetails() != null && !promotion.getPromotionDetails().isEmpty()) {
-        //    throw new RuntimeException("Cannot delete: Promotion is in use.");
-        // }
         promotionRepository.delete(promotion);
     }
 }

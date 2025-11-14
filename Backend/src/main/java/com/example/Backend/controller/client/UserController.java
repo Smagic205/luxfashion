@@ -1,11 +1,14 @@
 package com.example.Backend.controller.client;
 
-import com.example.Backend.dto.UserProfileDTO;
+import com.example.Backend.dto.UserProfileDTO; // (Bạn cần tạo file DTO này, code ở dưới)
 import com.example.Backend.entity.User;
 import com.example.Backend.exception.ResourceNotFoundException;
 import com.example.Backend.repository.UserRepository;
+import com.example.Backend.service.UserService; // <-- Import Service
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.security.oauth2.core.user.OAuth2User;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
@@ -13,26 +16,30 @@ import org.springframework.web.bind.annotation.*;
 public class UserController {
 
     @Autowired
-    private UserRepository userRepository; // Inject UserRepository
+    private UserService userService; 
 
-    /**
-     * Tạm thời hard-code, bạn phải thay bằng logic lấy user đã đăng nhập
-     */
-    private Long getCurrentUserId() {
-        // ... (logic lấy user từ Spring Security)
-        return 1L; // Mặc định là User 1L
+  
+    private Long getUserIdFromPrincipal(OAuth2User principal) {
+        if (principal == null || principal.getAttribute("email") == null) {
+            throw new SecurityException("User not authenticated or email not found in principal");
+        }
+
+        String email = principal.getAttribute("email");
+        String name = principal.getAttribute("name");
+
+    
+        User user = userService.findOrCreateUser(email, name);
+        return user.getId();
     }
 
-    /**
-     * API Lấy thông tin profile của user hiện tại
-     * [GET] http://localhost:8080/api/user/profile
-     */
+ 
     @GetMapping("/profile")
-    public ResponseEntity<UserProfileDTO> getMyProfile() {
-        Long userId = getCurrentUserId();
+    public ResponseEntity<UserProfileDTO> getMyProfile(
+            @AuthenticationPrincipal OAuth2User principal) {
 
-        User user = userRepository.findById(userId)
-                .orElseThrow(() -> new ResourceNotFoundException("User not found with id: " + userId));
+        Long userId = getUserIdFromPrincipal(principal);
+
+        User user = userService.findOrCreateUser(principal.getAttribute("email"), null);
 
         return ResponseEntity.ok(new UserProfileDTO(user));
     }

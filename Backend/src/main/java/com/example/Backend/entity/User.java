@@ -9,6 +9,7 @@ import jakarta.persistence.Id;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
+import jakarta.persistence.Column;
 
 @Entity
 @Table(name = "users")
@@ -22,8 +23,10 @@ public class User {
     private String email;
     private String phoneNumber;
     private String username;
+    @Column(nullable = true) // Cho phép password là NULL (dành cho Google/FB Login)
     private String password;
-
+    private String status; // Vd: "ACTIVE", "INACTIVE" (để xóa mềm)
+    private String provider;
     @ManyToOne
     private Role role_id;
 
@@ -34,9 +37,12 @@ public class User {
     private List<Cart> carts;
 
     public User() {
+        // Constructor rỗng (cho Google)
     }
 
-    public User(String fullName, String address, String email, String phoneNumber, String username, String password, Role role_id) {
+    // Constructor cho Admin (dùng trong UserServiceImpl)
+    public User(String fullName, String address, String email, String phoneNumber,
+            String username, String password, Role role_id) {
         this.fullName = fullName;
         this.address = address;
         this.email = email;
@@ -44,6 +50,24 @@ public class User {
         this.username = username;
         this.password = password;
         this.role_id = role_id;
+        this.status = "ACTIVE"; // <-- Gán status mặc định
+        this.provider = "LOCAL"; // <-- Gán provider mặc định
+    }
+
+    public String getStatus() {
+        return status;
+    }
+
+    public void setStatus(String status) {
+        this.status = status;
+    }
+
+    public String getProvider() {
+        return provider;
+    }
+
+    public void setProvider(String provider) {
+        this.provider = provider;
     }
 
     // Getters and Setters

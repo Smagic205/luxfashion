@@ -17,10 +17,6 @@ public class SupplierController {
     @Autowired
     private SupplierService supplierService;
 
-    /**
-     * API Lấy tất cả nhà cung cấp (cho menu, bộ lọc...)
-     * [GET] http://localhost:8080/api/suppliers
-     */
     @GetMapping
     public ResponseEntity<List<SimpleInfoDTO>> getAllSuppliers() {
         List<SimpleInfoDTO> suppliers = supplierService.getAllSuppliers();

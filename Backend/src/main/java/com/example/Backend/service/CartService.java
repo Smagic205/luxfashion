@@ -5,14 +5,7 @@ import com.example.Backend.dto.CartResponseDTO;
 
 public interface CartService {
 
-    /**
-     * Lấy giỏ hàng hiện tại của người dùng
-     * 
-     * @param userId ID của người dùng
-     */
     CartResponseDTO getCartByUserId(Long userId);
-
-    // Thêm sản phẩm vào giỏ hàng
 
     CartResponseDTO addToCart(CartAddDTO dto, Long userId);
 

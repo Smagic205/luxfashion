@@ -2,11 +2,10 @@ package com.example.Backend.dto;
 
 public class ReviewRequestDTO {
 
-    private Long productId; // Đánh giá sản phẩm nào?
+    private Long productId;
     private int rating; // 1-5 sao
-    private String comment; // Bình luận (có thể rỗng)
+    private String comment;
 
-    // --- Getters and Setters ---
     public Long getProductId() {
         return productId;
     }

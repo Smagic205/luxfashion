@@ -1,10 +1,9 @@
 package com.example.Backend.dto;
 
 import com.example.Backend.entity.CartDetail;
-import com.example.Backend.entity.Product; // <-- 1. THÊM IMPORT NÀY
-import com.example.Backend.entity.Image; // <-- 2. THÊM IMPORT NÀY
+import com.example.Backend.entity.Product;
+import com.example.Backend.entity.Image;
 
-// DTO để "trả về" thông tin của 1 món hàng trong giỏ
 public class CartDetailResponseDTO {
     private Long cartDetailId;
     private int quantity;
@@ -58,8 +57,6 @@ public class CartDetailResponseDTO {
         }
     }
 
-    // --- Getters (Bắt buộc) ---
-    // (Giữ nguyên các Getters cũ của bạn)
     public Long getCartDetailId() {
         return cartDetailId;
     }

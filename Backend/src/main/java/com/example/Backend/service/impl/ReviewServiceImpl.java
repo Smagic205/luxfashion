@@ -97,10 +97,6 @@ public class ReviewServiceImpl implements ReviewService {
         return new ReviewResponseDTO(savedReview);
     }
 
-    /**
-     * Hàm helper (nội bộ) để kiểm tra xem User đã mua Product này
-     * và đơn hàng đã "DELIVERED" hay chưa.
-     */
     private boolean hasPurchasedProduct(User user, Product product) {
         // Lấy tất cả hóa đơn của user
         List<Bill> userBills = billRepository.findByUserOrderByCreatedAtDesc(user);

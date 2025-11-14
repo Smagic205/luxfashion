@@ -18,15 +18,11 @@ public class Cart {
     private Long id;
 
     @ManyToOne
-    @JoinColumn(name = "user_id") // Thêm @JoinColumn cho rõ ràng
+    @JoinColumn(name = "user_id")
     private User user;
 
-    // --- SỬA LỖI Ở ĐÂY ---
-    // mappedBy phải trỏ đến tên TRƯỜNG (field) trong CartDetail.java
-    // Tên trường đó là "cart".
     @OneToMany(mappedBy = "cart")
     private List<CartDetail> cartDetails;
-    // --- HẾT LỖI ---
 
     public Cart() {
     }
@@ -35,7 +31,6 @@ public class Cart {
         this.user = user;
     }
 
-    // --- Getters and Setters ---
     public Long getId() {
         return id;
     }

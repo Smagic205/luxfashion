@@ -4,13 +4,11 @@ import com.example.Backend.entity.BillDetail;
 import com.example.Backend.entity.Image;
 import com.example.Backend.entity.ProductVariant;
 
-// DTO này làm "dẹt" thông tin từ BillDetail để React dễ hiển thị
 public class BillDetailResponseDTO {
     private Long id;
     private int quantity;
     private Double price; // Giá tại thời điểm mua
 
-    // Thông tin từ ProductVariant và Product cha
     private Long variantId;
     private String productName;
     private String colorName;
@@ -46,8 +44,6 @@ public class BillDetailResponseDTO {
         }
     }
 
-    // --- Cần đủ Getters cho Spring Boot chuyển thành JSON ---
-    // (tự động tạo hoặc viết tay)
     public Long getId() {
         return id;
     }

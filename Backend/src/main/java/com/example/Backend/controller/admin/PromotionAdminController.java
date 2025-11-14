@@ -70,9 +70,6 @@ public class PromotionAdminController {
     }
 }
 
-/**
- * Lớp DTO nội bộ (hoặc tạo file DTO riêng) để nhận promotionId từ body
- */
 class AdminPromotionRequestDTO {
     private Long promotionId;
 

@@ -40,11 +40,9 @@ public class Product {
     @Formula("(SELECT COALESCE(AVG(r.rating), 0.0) FROM reviews r WHERE r.product_id = id)")
     private Double averageRating;
 
-    // --- THÊM TRƯỜNG MỚI (Biến thể) ---
     @OneToMany(mappedBy = "product", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<ProductVariant> variants;
 
-    // Constructor mặc định
     public Product(String string, Double double1, String string2, Category category,
             Supplier supplier, Promotion pormotion) {
     }

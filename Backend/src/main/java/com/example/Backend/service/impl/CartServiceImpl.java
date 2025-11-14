@@ -2,11 +2,11 @@ package com.example.Backend.service.impl;
 
 import com.example.Backend.dto.CartAddDTO;
 import com.example.Backend.dto.CartResponseDTO;
-import com.example.Backend.entity.*; // Import tất cả entity
-import com.example.Backend.exception.ForbiddenException; // Import lỗi 403
+import com.example.Backend.entity.*;
+import com.example.Backend.exception.ForbiddenException;
 import com.example.Backend.exception.ResourceNotFoundException;
-import com.example.Backend.repository.*; // Import tất cả repository
-import com.example.Backend.service.CartService; // <-- THÊM IMPORT NÀY
+import com.example.Backend.repository.*;
+import com.example.Backend.service.CartService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -14,9 +14,8 @@ import org.springframework.transaction.annotation.Transactional;
 import java.util.Optional;
 
 @Service
-public class CartServiceImpl implements CartService { // <-- Triển khai interface
+public class CartServiceImpl implements CartService {
 
-    // --- @Autowired Repositories ---
     @Autowired
     private CartRepository cartRepository;
     @Autowired
@@ -24,21 +23,10 @@ public class CartServiceImpl implements CartService { // <-- Triển khai interf
     @Autowired
     private UserRepository userRepository;
     @Autowired
-    private ProductRepository productRepository; // Vẫn cần để tìm KM của Product
+    private ProductRepository productRepository;
     @Autowired
-    private ProductVariantRepository productVariantRepository; // <-- Repo mới
-    // @Autowired private ColorRepository colorRepository; // <-- XÓA
-    // @Autowired private SizeRepository sizeRepository; // <-- XÓA
+    private ProductVariantRepository productVariantRepository;
 
-    /**
-     * =======================================================
-     * HÀM HELPER (HỖ TRỢ) NỘI BỘ
-     * =======================================================
-     */
-
-    /**
-     * Hàm helper: Tìm giỏ hàng của User. Nếu chưa có, tạo mới.
-     */
     private Cart getOrCreateCart(User user) {
         if (user == null) {
             throw new IllegalArgumentException("User cannot be null");
@@ -52,10 +40,6 @@ public class CartServiceImpl implements CartService { // <-- Triển khai interf
                 });
     }
 
-    /**
-     * Hàm helper: Tìm 1 khuyến mãi đang "ACTIVE" của sản phẩm (cha)
-     * (Tạm thời copy từ ProductServiceImpl, nên tách ra service chung)
-     */
     private Promotion findActivePromotion(Product product) {
         if (product == null || product.getPromotionDetails() == null || product.getPromotionDetails().isEmpty()) {
             return null;
@@ -69,10 +53,6 @@ public class CartServiceImpl implements CartService { // <-- Triển khai interf
         return null;
     }
 
-    /**
-     * Hàm helper: Lấy giá bán (tính cả khuyến mãi của sản phẩm cha)
-     * (Tạm thời copy từ ProductServiceImpl)
-     */
     private Double getSalePrice(Product product) {
         if (product == null)
             return 0.0;
@@ -88,15 +68,6 @@ public class CartServiceImpl implements CartService { // <-- Triển khai interf
         return originalPrice; // Trả về giá gốc nếu không có KM
     }
 
-    /**
-     * =======================================================
-     * TRIỂN KHAI SERVICE (PUBLIC METHODS)
-     * =======================================================
-     */
-
-    /**
-     * Lấy giỏ hàng của người dùng theo ID
-     */
     @Override
     @Transactional(readOnly = true)
     public CartResponseDTO getCartByUserId(Long userId) {
@@ -148,7 +119,7 @@ public class CartServiceImpl implements CartService { // <-- Triển khai interf
 
         } else {
             // --- Thêm mới (nếu chưa có) ---
-            // Lấy giá bán (xét cả giá sale của sản phẩm cha)
+
             Double salePrice = getSalePrice(variant.getProduct());
 
             CartDetail newDetail = new CartDetail(
@@ -160,8 +131,8 @@ public class CartServiceImpl implements CartService { // <-- Triển khai interf
             cartDetailRepository.save(newDetail);
         }
 
-        // 5. Trả về toàn bộ giỏ hàng đã cập nhật
-        // Phải tải lại Cart từ DB để đảm bảo list cartDetails được cập nhật
+        // Trả về toàn bộ giỏ hàng đã cập nhật
+
         Cart updatedCart = cartRepository.findById(cart.getId())
                 .orElseThrow(() -> new ResourceNotFoundException("Cart not found after update")); // Lỗi hiếm gặp
         return new CartResponseDTO(updatedCart);
@@ -213,20 +184,17 @@ public class CartServiceImpl implements CartService { // <-- Triển khai interf
     @Override
     @Transactional
     public CartResponseDTO removeItem(Long cartDetailId, Long userId) {
-        // 1. Tìm chi tiết giỏ hàng
+
         CartDetail cartDetail = cartDetailRepository.findById(cartDetailId)
                 .orElseThrow(() -> new ResourceNotFoundException("Cart item not found with id: " + cartDetailId));
 
-        // 2. Kiểm tra bảo mật
         if (cartDetail.getCart() == null || cartDetail.getCart().getUser() == null
                 || !cartDetail.getCart().getUser().getId().equals(userId)) {
             throw new ForbiddenException("You do not have permission to remove this item");
         }
 
-        // 3. Xóa
         cartDetailRepository.delete(cartDetail);
 
-        // 4. Trả về toàn bộ giỏ hàng đã cập nhật
         return getCartByUserId(userId);
     }
 }

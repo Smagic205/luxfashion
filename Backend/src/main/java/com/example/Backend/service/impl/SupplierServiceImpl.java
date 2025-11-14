@@ -22,11 +22,6 @@ public class SupplierServiceImpl implements SupplierService {
     @Autowired
     private ProductRepository productRepository; // Dùng để kiểm tra khi xóa
 
-    /**
-     * =======================================================
-     * HÀM CHO CLIENT
-     * =======================================================
-     */
     @Override
     @Transactional(readOnly = true)
     public List<SimpleInfoDTO> getAllSuppliers() {
@@ -35,12 +30,6 @@ public class SupplierServiceImpl implements SupplierService {
                 .map(supplier -> new SimpleInfoDTO(supplier.getId(), supplier.getName()))
                 .collect(Collectors.toList());
     }
-
-    /**
-     * =======================================================
-     * HÀM CHO ADMIN (CRUD)
-     * =======================================================
-     */
 
     @Override
     @Transactional(readOnly = true)
@@ -56,10 +45,10 @@ public class SupplierServiceImpl implements SupplierService {
         if (dto == null || dto.getName() == null || dto.getName().isBlank()) {
             throw new IllegalArgumentException("Supplier name cannot be null or empty");
         }
-        
+
         Supplier newSupplier = new Supplier();
         newSupplier.setName(dto.getName());
-        
+
         Supplier savedSupplier = supplierRepository.save(newSupplier);
         return new SimpleInfoDTO(savedSupplier.getId(), savedSupplier.getName());
     }
@@ -73,9 +62,9 @@ public class SupplierServiceImpl implements SupplierService {
 
         Supplier existingSupplier = supplierRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Supplier not found with id: " + id));
-        
+
         existingSupplier.setName(dto.getName());
-        
+
         Supplier updatedSupplier = supplierRepository.save(existingSupplier);
         return new SimpleInfoDTO(updatedSupplier.getId(), updatedSupplier.getName());
     }
@@ -88,13 +77,13 @@ public class SupplierServiceImpl implements SupplierService {
 
         // BƯỚC KIỂM TRA AN TOÀN
         long productCount = productRepository.countBySupplier_id(supplierToDelete);
-        
+
         if (productCount > 0) {
             // Nếu có, ném lỗi và không cho xóa
-            throw new RuntimeException("Cannot delete supplier: It is currently used by " 
-                + productCount + " product(s).");
+            throw new RuntimeException("Cannot delete supplier: It is currently used by "
+                    + productCount + " product(s).");
         }
-        
+
         // Nếu không có sản phẩm nào dùng, tiến hành xóa
         supplierRepository.delete(supplierToDelete);
     }

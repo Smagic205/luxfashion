@@ -1,5 +1,7 @@
 package com.example.Backend.dto;
 
+import com.example.Backend.entity.User;
+
 public class UserResponseDTO {
     private Long id;
     private String fullName;
@@ -8,6 +10,22 @@ public class UserResponseDTO {
     private String phoneNumber;
     private String username;
     private String roleName;
+
+    public UserResponseDTO() {
+    }
+
+    public UserResponseDTO(User user) {
+        this.id = user.getId();
+        this.fullName = user.getFullName();
+        this.address = user.getAddress();
+        this.email = user.getEmail();
+        this.phoneNumber = user.getPhoneNumber();
+        this.username = user.getUsername();
+
+        if (user.getRole_id() != null) {
+            this.roleName = user.getRole_id().getName();
+        }
+    }
 
     public Long getId() {
         return id;

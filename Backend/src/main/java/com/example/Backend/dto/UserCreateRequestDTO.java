@@ -7,11 +7,9 @@ public class UserCreateRequestDTO {
     private String email;
     private String phoneNumber;
     private String username;
-    private String password; // Mật khẩu gốc
-    private Long roleId; // Chỉ cần ID của Role
+    private String password;
+    private Long roleId;
 
-    // Getters & Setters (Bạn tự generate nhé)
-    // ...
     public String getFullName() {
         return fullName;
     }

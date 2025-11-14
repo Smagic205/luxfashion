@@ -1,52 +1,90 @@
 package com.example.Backend.controller.client;
 
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.security.oauth2.core.user.OAuth2User;
+import org.springframework.web.bind.annotation.*;
+
+import com.example.Backend.service.CartService;
+import com.example.Backend.service.UserService;
 import com.example.Backend.dto.CartAddDTO;
 import com.example.Backend.dto.CartResponseDTO;
-import com.example.Backend.service.CartService;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.*;
+import com.example.Backend.entity.User;
+
+import java.security.Principal;
+import java.util.Map; // 
 
 @RestController
 @RequestMapping("/api/cart")
-
 public class CartController {
 
     @Autowired
     private CartService cartService;
 
-    // Giả sử ID người dùng được lấy từ security (hoặc truyền vào)
-    // Tạm thời hard-code là 1L
-    private Long getCurrentUserId() {
-        // Trong thực tế, bạn sẽ lấy ID từ Spring Security Context
-        // Principal principal = ...;
-        // User user = userRepository.findByUsername(principal.getName());
-        // return user.getId();
-        return 1L; // <-- THAY THẾ BẰNG LOGIC XÁC THỰC
+    @Autowired
+    private UserService userService;
+
+    private Long getUserIdFromPrincipal(Principal principal) {
+        if (principal == null) {
+            throw new SecurityException("User not authenticated");
+        }
+
+        String email;
+        String name = null;
+
+        Authentication authentication = (Authentication) principal;
+        Object principalDetails = authentication.getPrincipal();
+
+        if (principalDetails instanceof OAuth2User) {
+            // Case 1: Đăng nhập bằng Google
+            OAuth2User oauthUser = (OAuth2User) principalDetails;
+            email = oauthUser.getAttribute("email");
+            name = oauthUser.getAttribute("name");
+        } else {
+            // Case 2: Đăng nhập bằng Local (hoặc các trường hợp khác)
+            // principal.getName() sẽ là email (như ta cấu hình trong
+            // UserDetailsServiceImpl)
+            email = principal.getName();
+        }
+
+        // Gọi hàm 'findOrCreateUser'
+        User user = userService.findOrCreateUser(email, name);
+        return user.getId();
     }
 
-    /**
-     * API Lấy giỏ hàng của người dùng hiện tại
-     * [GET] http://localhost:8080/api/cart
-     */
     @GetMapping
-    public CartResponseDTO getMyCart() {
-        Long userId = getCurrentUserId();
+    public CartResponseDTO getMyCart(Principal principal) {
+        Long userId = getUserIdFromPrincipal(principal); // Lấy ID thật
         return cartService.getCartByUserId(userId);
     }
 
-    /**
-     * API Thêm sản phẩm vào giỏ hàng
-     * [POST] http://localhost:8080/api/cart/add
-     */
     @PostMapping("/add")
-    public CartResponseDTO addToCart(@RequestBody CartAddDTO cartAddDTO) {
-        Long userId = getCurrentUserId();
+    public CartResponseDTO addToCart(@RequestBody CartAddDTO cartAddDTO,
+            Principal principal) {
+        Long userId = getUserIdFromPrincipal(principal); // Lấy ID thật
         return cartService.addToCart(cartAddDTO, userId);
     }
 
+    @PutMapping("/update/{cartDetailId}")
+    public CartResponseDTO updateItemQuantity(
+            @PathVariable Long cartDetailId,
+            @RequestBody Map<String, Integer> request, // Nhận số lượng mới từ body
+            Principal principal) {
+
+        Long userId = getUserIdFromPrincipal(principal);
+        int newQuantity = request.get("quantity");
+
+        return cartService.updateItemQuantity(cartDetailId, newQuantity, userId);
+    }
+
     @DeleteMapping("/remove/{cartDetailId}")
-    public CartResponseDTO removeItemFromCart(@PathVariable Long cartDetailId) {
-        Long userId = getCurrentUserId();
+    public CartResponseDTO removeItemFromCart(
+            @PathVariable Long cartDetailId,
+            Principal principal) {
+
+        Long userId = getUserIdFromPrincipal(principal);
         return cartService.removeItem(cartDetailId, userId);
     }
 }

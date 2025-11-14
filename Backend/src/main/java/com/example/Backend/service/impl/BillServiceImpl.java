@@ -10,7 +10,7 @@ import com.example.Backend.repository.*;
 import com.example.Backend.service.BillService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional; // Rất quan trọng
+import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
@@ -31,11 +31,6 @@ public class BillServiceImpl implements BillService {
     @Autowired
     private ProductVariantRepository productVariantRepository; // Để trừ kho
 
-    /**
-     * =======================================================
-     * HÀM CHÍNH: TẠO HÓA ĐƠN
-     * =======================================================
-     */
     @Override
     @Transactional // Comment: Bắt buộc dùng Transactional. Nếu 1 bước lỗi, tất cả sẽ rollback.
     public BillResponseDTO createBill(BillCreateRequestDTO request, Long userId) {
@@ -55,15 +50,13 @@ public class BillServiceImpl implements BillService {
             throw new IllegalArgumentException("Shipping information is required");
         }
 
-        // 3. Lấy các CartDetail từ DB
         List<CartDetail> cartDetails = cartDetailRepository.findAllById(cartDetailIds);
 
-        // 4. Kiểm tra bảo mật và Tồn kho (QUAN TRỌNG)
-        List<ProductVariant> variantsToUpdate = new ArrayList<>(); // List để cập nhật tồn kho
+        List<ProductVariant> variantsToUpdate = new ArrayList<>();
         double totalAmount = 0.0;
 
         for (CartDetail item : cartDetails) {
-            // 4a. Bảo mật: Món hàng này có thuộc user này không?
+            // Bảo mật: Món hàng này có thuộc user này không?
             if (!item.getCart().getUser().getId().equals(userId)) {
                 throw new ForbiddenException("You do not own cart item with id: " + item.getId());
             }
@@ -71,7 +64,7 @@ public class BillServiceImpl implements BillService {
             ProductVariant variant = item.getProductVariant();
             int requestedQuantity = item.getQuantity();
 
-            // 4b. Tồn kho: Kiểm tra số lượng
+            // Tồn kho: Kiểm tra số lượng
             if (variant.getQuantity() < requestedQuantity) {
                 throw new RuntimeException("Not enough stock for variant: "
                         + variant.getProduct().getName() + " - "
@@ -80,15 +73,15 @@ public class BillServiceImpl implements BillService {
                         + ". Available: " + variant.getQuantity());
             }
 
-            // 4c. Trừ kho (tạm thời)
+            // Trừ kho (tạm thời)
             variant.setQuantity(variant.getQuantity() - requestedQuantity);
             variantsToUpdate.add(variant); // Thêm vào list để lát nữa saveAll
 
-            // 4d. Tính tổng tiền
+            // Tính tổng tiền
             totalAmount += (item.getPrice() * requestedQuantity);
         }
 
-        // 5. Tạo Hóa đơn (Bill)
+        // Tạo Hóa đơn (Bill)
         Bill newBill = new Bill();
         newBill.setUser(user);
         newBill.setCreatedAt(LocalDateTime.now());
@@ -101,7 +94,7 @@ public class BillServiceImpl implements BillService {
         newBill.setShippingPhone(shippingInfo.getPhone());
         newBill.setShippingNote(shippingInfo.getNote());
 
-        // 6. Tạo danh sách Chi tiết Hóa đơn (BillDetail)
+        // Tạo danh sách Chi tiết Hóa đơn (BillDetail)
         List<BillDetail> billDetails = new ArrayList<>();
         for (CartDetail item : cartDetails) {
             BillDetail billDetail = new BillDetail(
@@ -130,11 +123,6 @@ public class BillServiceImpl implements BillService {
         return new BillResponseDTO(savedBill);
     }
 
-    /**
-     * =======================================================
-     * CÁC HÀM PHỤ: XEM LỊCH SỬ
-     * =======================================================
-     */
     @Override
     @Transactional(readOnly = true)
     public List<BillResponseDTO> getBillHistory(Long userId) {

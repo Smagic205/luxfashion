@@ -6,5 +6,5 @@ import org.springframework.stereotype.Repository;
 
 @Repository
 public interface BillDetailRepository extends JpaRepository<BillDetail, Long> {
-    // (Hiện tại không cần phương thức tùy chỉnh)
+
 }

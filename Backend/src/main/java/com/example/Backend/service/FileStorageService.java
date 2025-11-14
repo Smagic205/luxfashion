@@ -16,22 +16,13 @@ import org.springframework.util.StringUtils;
 @Service
 public class FileStorageService {
 
-    // --- THAY ĐỔI Ở ĐÂY ---
-    // Đường dẫn gốc bây giờ là thư mục 'uploads/'
-    // nằm ngang hàng với thư mục 'src/'
     private final Path rootLocation = Paths.get("uploads");
 
-    /**
-     * Hàm init này vẫn rất quan trọng,
-     * nó sẽ tự tạo thư mục "uploads" khi server khởi động nếu chưa có.
-     */
     @PostConstruct
     public void init() {
         try {
             Files.createDirectories(rootLocation);
 
-            // --- THÊM DÒNG NÀY ---
-            // Nó sẽ in ra đường dẫn tuyệt đối của thư mục 'uploads'
             System.out.println(">>> [FileStorageService] init() ĐÃ CHẠY. Thư mục: " +
                     rootLocation.toAbsolutePath());
 
@@ -40,10 +31,6 @@ public class FileStorageService {
         }
     }
 
-    /**
-     * Logic lưu file (dùng tên theo thời gian) không cần thay đổi.
-     * Nó sẽ tự động lưu vào 'rootLocation' mới (tức là 'uploads/').
-     */
     public String save(MultipartFile file) {
         if (file.isEmpty()) {
             throw new RuntimeException("Failed to store empty file.");
@@ -56,14 +43,13 @@ public class FileStorageService {
             String timeStamp = new SimpleDateFormat("yyyyMMddHHmmssSSS").format(new Date());
             String newFilename = timeStamp + "_" + cleanBaseName + "." + extension;
 
-            // Đường dẫn đích (ví dụ: "uploads/2025..._my_photo.png")
             Path destinationFile = this.rootLocation.resolve(newFilename);
 
             try (InputStream inputStream = file.getInputStream()) {
                 Files.copy(inputStream, destinationFile, StandardCopyOption.REPLACE_EXISTING);
             }
 
-            return newFilename; // Trả về tên file mới
+            return newFilename;
 
         } catch (IOException e) {
             throw new RuntimeException("Failed to store file.", e);

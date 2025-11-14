@@ -17,10 +17,6 @@ public class CategoryController {
     @Autowired
     private CategoryService categoryService;
 
-    /**
-     * API Lấy tất cả các Category (cho menu, bộ lọc...)
-     * [GET] http://localhost:8080/api/categories
-     */
     @GetMapping
     public ResponseEntity<List<SimpleInfoDTO>> getAllCategories() {
         List<SimpleInfoDTO> categories = categoryService.getAllCategories();

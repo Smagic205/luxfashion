@@ -12,12 +12,6 @@ import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.servlet.mvc.method.annotation.ResponseBodyAdvice;
 import jakarta.servlet.http.HttpServletResponse;
 
-/**
- * @RestControllerAdvice này "bắt" TẤT CẢ các response.
- *                       Nó triển khai ResponseBodyAdvice để "can thiệp" TRƯỚC
- *                       KHI
- *                       body được ghi vào response.
- */
 @RestControllerAdvice
 public class FormatSuccessResponseAdvice implements ResponseBodyAdvice<Object> {
 

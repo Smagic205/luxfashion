@@ -1,10 +1,10 @@
 package com.example.Backend.service.impl;
 
 import com.example.Backend.dto.SimpleInfoDTO;
-import com.example.Backend.entity.Category; // <-- 1. THÊM IMPORT
-import com.example.Backend.exception.ResourceNotFoundException; // <-- 2. THÊM IMPORT
+import com.example.Backend.entity.Category;
+import com.example.Backend.exception.ResourceNotFoundException;
 import com.example.Backend.repository.CategoryRepository;
-import com.example.Backend.repository.ProductRepository; // <-- 3. THÊM IMPORT
+import com.example.Backend.repository.ProductRepository;
 import com.example.Backend.service.CategoryService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -23,11 +23,6 @@ public class CategoryServiceImpl implements CategoryService {
     @Autowired
     private ProductRepository productRepository;
 
-    /**
-     * =======================================================
-     * HÀM CHO CLIENT (Giữ nguyên)
-     * =======================================================
-     */
     @Override
     @Transactional(readOnly = true)
     public List<SimpleInfoDTO> getAllCategories() {
@@ -36,12 +31,6 @@ public class CategoryServiceImpl implements CategoryService {
                 .map(category -> new SimpleInfoDTO(category.getId(), category.getName()))
                 .collect(Collectors.toList());
     }
-
-    /**
-     * =======================================================
-     * HÀM CHO ADMIN (Hàm mới)
-     * =======================================================
-     */
 
     @Override
     @Transactional(readOnly = true)

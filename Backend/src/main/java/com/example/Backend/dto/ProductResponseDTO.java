@@ -2,19 +2,19 @@ package com.example.Backend.dto;
 
 import com.example.Backend.entity.Image;
 import com.example.Backend.entity.Product;
-import com.example.Backend.entity.ProductVariant; // Import Variant
+import com.example.Backend.entity.ProductVariant;
 import java.util.List;
 import java.util.stream.Collectors;
 
 public class ProductResponseDTO {
     private Long id;
     private String name;
-    // private int quantity; // <-- XÓA
+
     private String description;
     private Double originalPrice;
     private Double salePrice;
     private Double discountPercentage;
-    private Double averageRating; // <-- THÊM
+    private Double averageRating;
     private List<SimpleInfoDTO> promotions;
     private SimpleInfoDTO category;
     private SimpleInfoDTO categoryProduct;
@@ -22,15 +22,15 @@ public class ProductResponseDTO {
 
     private List<String> images;
 
-    private List<VariantResponseDTO> variants; // <-- THÊM
-    private int totalQuantity; // <-- THÊM
+    private List<VariantResponseDTO> variants;
+    private int totalQuantity;
 
     public ProductResponseDTO(Product product) {
         this.id = product.getId();
         this.name = product.getName();
         this.originalPrice = product.getPrice();
         this.description = product.getDescription();
-        this.averageRating = product.getAverageRating(); // Lấy rating
+        this.averageRating = product.getAverageRating();
 
         // Map category
         if (product.getCategory_id() != null) {
@@ -63,7 +63,6 @@ public class ProductResponseDTO {
         }
     }
 
-    // --- Getters and Setters (Đầy đủ) ---
     public Long getId() {
         return id;
     }

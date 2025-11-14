@@ -5,7 +5,6 @@ public class CartAddDTO {
     private Long variantId;
     private int quantity;
 
-    // --- Getters and Setters ---
     public Long getVariantId() {
         return variantId;
     }

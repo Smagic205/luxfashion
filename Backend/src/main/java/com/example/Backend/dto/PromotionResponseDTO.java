@@ -26,9 +26,6 @@ public class PromotionResponseDTO {
         this.discountPercentage = promotion.getDiscountPercentage();
         this.status = promotion.getStatus();
     }
-    
-    // --- BẠN CÓ THỂ ĐANG THIẾU PHẦN NÀY ---
-    // --- BẮT BUỘC CÓ GETTERS VÀ SETTERS ---
 
     public Long getId() {
         return id;

@@ -14,9 +14,8 @@ public class ProductRequestDTO {
     private List<Long> promotionIds;
     private List<String> imageUrls;
 
-    private List<VariantRequestDTO> variants; // Danh sách các biến thể
+    private List<VariantRequestDTO> variants;
 
-    // --- Getters and Setters ---
     public String getName() {
         return name;
     }

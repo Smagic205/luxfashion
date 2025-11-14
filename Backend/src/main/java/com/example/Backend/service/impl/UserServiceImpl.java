@@ -1,11 +1,12 @@
 package com.example.Backend.service.impl;
 
+import com.example.Backend.dto.RegisterRequestDTO;
 import com.example.Backend.dto.UserCreateRequestDTO;
 import com.example.Backend.dto.UserResponseDTO;
 import com.example.Backend.dto.UserUpdateRequestDTO;
 import com.example.Backend.entity.Role;
 import com.example.Backend.entity.User;
-import com.example.Backend.exception.ResourceNotFoundException; // File này ta đã tạo ở lần trước
+import com.example.Backend.exception.ResourceNotFoundException;
 import com.example.Backend.repository.RoleRepository;
 import com.example.Backend.repository.UserRepository;
 import com.example.Backend.service.UserService;
@@ -15,6 +16,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Service
@@ -30,10 +32,36 @@ public class UserServiceImpl implements UserService {
     private PasswordEncoder passwordEncoder; // Tiêm Bean mã hoá mật khẩu
 
     @Override
+    @Transactional
+    public User findOrCreateUser(String email, String name) {
+        // 1. Tìm user bằng email
+        Optional<User> userOptional = userRepository.findByEmail(email);
+
+        if (userOptional.isPresent()) {
+            // Nếu đã tồn tại (dù là Google hay Local), trả về user đó
+            return userOptional.get();
+        }
+
+        Role userRole = roleRepository.findById(2L)
+                .orElseThrow(() -> new ResourceNotFoundException("Default Role 'USER' not found"));
+
+        User newUser = new User();
+        newUser.setEmail(email);
+        newUser.setFullName(name);
+        newUser.setUsername(email);
+        newUser.setPassword(null);
+        newUser.setRole_id(userRole);
+        newUser.setStatus("ACTIVE");
+        newUser.setProvider("GOOGLE");
+
+        return userRepository.save(newUser);
+    }
+
+    @Override
     @Transactional(readOnly = true)
     public List<UserResponseDTO> getAllUsers() {
         return userRepository.findAll().stream()
-                .map(this::mapToUserResponseDTO) // Dùng hàm helper để chuyển đổi
+                .map(this::mapToUserResponseDTO)
                 .collect(Collectors.toList());
     }
 
@@ -116,11 +144,6 @@ public class UserServiceImpl implements UserService {
         userRepository.delete(user);
     }
 
-    /**
-     * Hàm helper (hỗ trợ) private
-     * Dùng để chuyển đổi (map) từ Entity User -> UserResponseDTO (an toàn)
-     * Hàm này sẽ "giấu" mật khẩu.
-     */
     private UserResponseDTO mapToUserResponseDTO(User user) {
         UserResponseDTO dto = new UserResponseDTO();
         dto.setId(user.getId());
@@ -136,5 +159,38 @@ public class UserServiceImpl implements UserService {
         }
 
         return dto;
+    }
+
+    @Override
+    @Transactional
+    public UserResponseDTO registerNewUser(RegisterRequestDTO registerRequest) {
+
+        // 1. Kiểm tra xem email đã tồn tại chưa
+        if (userRepository.findByEmail(registerRequest.getEmail()).isPresent()) {
+            throw new RuntimeException("Email is already taken!");
+        }
+
+        // 2. Tìm Role "USER" (mặc định cho người dùng mới)
+        // (*** QUAN TRỌNG: Đảm bảo ID=2L là Role "USER" trong DB của bạn ***)
+        Role userRole = roleRepository.findById(2L)
+                .orElseThrow(() -> new ResourceNotFoundException("Default Role 'USER' (ID: 2) not found"));
+
+        // 3. Tạo User mới
+        User newUser = new User();
+        newUser.setEmail(registerRequest.getEmail());
+        newUser.setFullName(registerRequest.getFullName());
+        newUser.setPhoneNumber(registerRequest.getPhoneNumber());
+        newUser.setUsername(registerRequest.getEmail()); // Dùng email làm username
+
+        // 4. Băm mật khẩu (Bạn đã có PasswordEncoder)
+        newUser.setPassword(passwordEncoder.encode(registerRequest.getPassword()));
+
+        newUser.setRole_id(userRole);
+        newUser.setStatus("ACTIVE");
+        newUser.setProvider("LOCAL"); // Đánh dấu đây là tài khoản local
+
+        // 5. Lưu và trả về
+        User savedUser = userRepository.save(newUser);
+        return mapToUserResponseDTO(savedUser);
     }
 }

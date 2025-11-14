@@ -4,10 +4,8 @@ import java.util.List;
 
 public class BillCreateRequestDTO {
 
-    // Comment: Danh sách ID của các món hàng (CartDetail) đã được "tích chọn"
     private List<Long> cartDetailIds;
 
-    // Comment: Thông tin giao hàng người dùng đã nhập
     private ShippingInfoDTO shippingInfo;
 
     // Getters and Setters

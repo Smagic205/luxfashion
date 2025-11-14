@@ -2,13 +2,15 @@ package com.example.Backend.dto;
 
 import com.example.Backend.entity.User;
 
+// DTO này dùng để trả về thông tin user (giống UserResponseDTO)
 public class UserProfileDTO {
     private Long id;
     private String username;
     private String email;
     private String fullName;
     private String address;
-    private String phoneNumber;
+    private String phone;
+    private String roleName;
 
     public UserProfileDTO(User user) {
         this.id = user.getId();
@@ -16,7 +18,10 @@ public class UserProfileDTO {
         this.email = user.getEmail();
         this.fullName = user.getFullName();
         this.address = user.getAddress();
-        this.phoneNumber = user.getPhoneNumber();
+        this.phone = user.getPhoneNumber();
+        if (user.getRole_id() != null) {
+            this.roleName = user.getRole_id().getName();
+        }
     }
 
     // --- Bắt buộc có Getters ---
@@ -40,8 +45,11 @@ public class UserProfileDTO {
         return address;
     }
 
-    public String getPhoneNumber() {
-        return phoneNumber;
+    public String getPhone() {
+        return phone;
     }
 
+    public String getRoleName() {
+        return roleName;
+    }
 }
