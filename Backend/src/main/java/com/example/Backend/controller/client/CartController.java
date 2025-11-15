@@ -1,9 +1,8 @@
 package com.example.Backend.controller.client;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
-import org.springframework.security.core.annotation.AuthenticationPrincipal;
+
 import org.springframework.security.oauth2.core.user.OAuth2User;
 import org.springframework.web.bind.annotation.*;
 
@@ -38,14 +37,12 @@ public class CartController {
         Object principalDetails = authentication.getPrincipal();
 
         if (principalDetails instanceof OAuth2User) {
-            // Case 1: Đăng nhập bằng Google
+
             OAuth2User oauthUser = (OAuth2User) principalDetails;
             email = oauthUser.getAttribute("email");
             name = oauthUser.getAttribute("name");
         } else {
-            // Case 2: Đăng nhập bằng Local (hoặc các trường hợp khác)
-            // principal.getName() sẽ là email (như ta cấu hình trong
-            // UserDetailsServiceImpl)
+
             email = principal.getName();
         }
 

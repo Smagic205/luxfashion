@@ -29,7 +29,7 @@ public class AdminCategoryController {
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> deleteCategory(@PathVariable Long id) {
         categoryService.deleteCategory(id);
-        // Trả về 204 No Content (Xóa thành công, không có nội dung trả về)
+
         return ResponseEntity.noContent().build();
     }
 

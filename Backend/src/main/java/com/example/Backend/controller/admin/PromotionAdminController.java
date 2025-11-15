@@ -7,7 +7,6 @@ import com.example.Backend.service.PromotionService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.http.ResponseEntity;
 
 import java.util.List;
 
@@ -56,10 +55,6 @@ public class PromotionAdminController {
         productService.addPromotionToProduct(productId, request.getPromotionId());
     }
 
-    /**
-     * API Xóa một Promotion khỏi Product
-     * [DELETE] http://localhost:8080/api/admin/products/15/promotions/1
-     */
     @DeleteMapping("/{productId}/promotions/{promotionId}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
     public void removePromotionFromProduct(

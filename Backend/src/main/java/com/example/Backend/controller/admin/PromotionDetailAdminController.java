@@ -15,10 +15,6 @@ public class PromotionDetailAdminController {
     @Autowired
     private PromotionDetailService promotionDetailService;
 
-    /**
-     * API Gán sản phẩm vào chương trình khuyến mãi
-     * [POST] http://localhost:8080/api/admin/promotion-details
-     */
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
     public PromotionDetailResponseDTO addProductToPromotion(@RequestBody PromotionDetailRequestDTO request) {

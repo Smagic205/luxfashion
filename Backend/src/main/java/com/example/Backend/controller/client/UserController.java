@@ -2,8 +2,7 @@ package com.example.Backend.controller.client;
 
 import com.example.Backend.dto.UserProfileDTO; // (Bạn cần tạo file DTO này, code ở dưới)
 import com.example.Backend.entity.User;
-import com.example.Backend.exception.ResourceNotFoundException;
-import com.example.Backend.repository.UserRepository;
+
 import com.example.Backend.service.UserService; // <-- Import Service
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -16,9 +15,8 @@ import org.springframework.web.bind.annotation.*;
 public class UserController {
 
     @Autowired
-    private UserService userService; 
+    private UserService userService;
 
-  
     private Long getUserIdFromPrincipal(OAuth2User principal) {
         if (principal == null || principal.getAttribute("email") == null) {
             throw new SecurityException("User not authenticated or email not found in principal");
@@ -27,12 +25,10 @@ public class UserController {
         String email = principal.getAttribute("email");
         String name = principal.getAttribute("name");
 
-    
         User user = userService.findOrCreateUser(email, name);
         return user.getId();
     }
 
- 
     @GetMapping("/profile")
     public ResponseEntity<UserProfileDTO> getMyProfile(
             @AuthenticationPrincipal OAuth2User principal) {

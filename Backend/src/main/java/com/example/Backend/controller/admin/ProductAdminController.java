@@ -19,7 +19,6 @@ public class ProductAdminController {
 
     @GetMapping
     public List<ProductResponseDTO> getAllProducts() {
-        // Chỉ cần trả về List DTO, 'Advice' sẽ tự động bọc
         return productService.getAllProducts();
     }
 
