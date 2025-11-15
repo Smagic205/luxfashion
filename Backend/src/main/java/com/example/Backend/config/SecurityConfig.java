@@ -11,8 +11,11 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.web.SecurityFilterChain;
-
+import org.springframework.security.web.AuthenticationEntryPoint;
+import org.springframework.http.HttpStatus;
+import org.springframework.security.web.authentication.HttpStatusEntryPoint;
 import com.example.Backend.service.impl.UserDetailsServiceImpl;
+import org.springframework.security.config.http.SessionCreationPolicy;
 
 @Configuration
 @EnableWebSecurity
@@ -21,6 +24,14 @@ public class SecurityConfig {
         private PasswordEncoder passwordEncoder;
         @Autowired
         private UserDetailsServiceImpl userDetailsServiceImpl;
+        @Autowired
+        private OAuth2LoginSuccessHandler oAuth2LoginSuccessHandler;
+
+        @Bean
+        public AuthenticationEntryPoint unauthorizedEntryPoint() {
+                // Trả về lỗi 401 thay vì chuyển hướng
+                return new HttpStatusEntryPoint(HttpStatus.UNAUTHORIZED);
+        }
 
         @Bean
         public AuthenticationManager authenticationManager(AuthenticationConfiguration config) throws Exception {
@@ -59,9 +70,13 @@ public class SecurityConfig {
                                                 .permitAll()
 
                                                 .anyRequest().authenticated())
+                                .exceptionHandling(ex -> ex.authenticationEntryPoint(unauthorizedEntryPoint()))
 
+                                .sessionManagement(session -> session
+                                                .sessionCreationPolicy(SessionCreationPolicy.IF_REQUIRED))
                                 .authenticationProvider(authenticationProvider())
-                                .oauth2Login(oauth2 -> oauth2.defaultSuccessUrl("http://localhost:5173/", true))
+                                .oauth2Login(oauth2 -> oauth2
+                                                .successHandler(oAuth2LoginSuccessHandler))
                                 .logout(logout -> logout.logoutUrl("/api/logout")
                                                 .logoutSuccessUrl("http://localhost:5173")
                                                 .deleteCookies("JSESSIONID")
