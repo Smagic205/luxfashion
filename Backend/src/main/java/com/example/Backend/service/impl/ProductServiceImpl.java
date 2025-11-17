@@ -6,6 +6,7 @@ import com.example.Backend.dto.ProductResponseDTO;
 import com.example.Backend.dto.SimpleInfoDTO;
 import com.example.Backend.dto.ProductFilterDTO;
 import com.example.Backend.dto.VariantRequestDTO;
+import com.example.Backend.dto.VariantResponseDTO;
 import com.example.Backend.entity.*;
 import com.example.Backend.exception.ResourceNotFoundException;
 import com.example.Backend.repository.*;
@@ -54,6 +55,7 @@ public class ProductServiceImpl implements ProductService {
                 }
                 return productRepository.findById(id)
                                 .orElseThrow(() -> new ResourceNotFoundException("Product not found with id: " + id));
+
         }
 
         // Tìm 1 khuyến mãi đang "ACTIVE" của sản phẩm (Giữ nguyên)
@@ -205,13 +207,6 @@ public class ProductServiceImpl implements ProductService {
                                 .filter(Objects::nonNull)
                                 .map(this::mapProductToResponseDTOWithSale)
                                 .collect(Collectors.toList());
-        }
-
-        @Override
-        @Transactional(readOnly = true)
-        public ProductResponseDTO getProductById(Long id) {
-                Product product = findProductById(id);
-                return mapProductToResponseDTOWithSale(product);
         }
 
         @Override
@@ -376,17 +371,33 @@ public class ProductServiceImpl implements ProductService {
         }
 
         // --- SỬA 4: SỬA HÀM DELETE ---
-        @Override
-        @Transactional
-        public void deleteProduct(Long id) {
+        @Override // (Nhớ @Override)
+        @Transactional(readOnly = true)
+        public ProductResponseDTO getProductById(Long id) {
+                // 1. Tìm Product (Giữ nguyên)
                 Product product = findProductById(id);
 
-                if (product.getPromotionDetails() != null) {
+                // 2. Map Product và tính giá Sale (Giữ nguyên)
+                ProductResponseDTO dto = mapProductToResponseDTOWithSale(product);
 
-                        product.getPromotionDetails().clear();
-                }
+                // === 3. SỬA LOGIC MAP VARIANTS ===
+                List<VariantResponseDTO> variantDTOs = product.getVariants().stream()
+                                // Dùng thẳng constructor của bạn, rất sạch!
+                                .map(variant -> new VariantResponseDTO(variant))
+                                .collect(Collectors.toList());
 
-                productRepository.delete(product);
+                // 4. Gán danh sách variants vào DTO
+                dto.setVariants(variantDTOs);
+
+                // 5. Tính tổng số lượng (totalQuantity)
+                int totalQuantity = product.getVariants().stream()
+                                .mapToInt(ProductVariant::getQuantity)
+                                .sum();
+                dto.setTotalQuantity(totalQuantity);
+
+                // === KẾT THÚC PHẦN SỬA ===
+
+                return dto; // 6. Trả về DTO đã hoàn chỉnh
         }
 
         @Transactional(readOnly = true)
@@ -407,6 +418,12 @@ public class ProductServiceImpl implements ProductService {
                                 .filter(Objects::nonNull)
                                 .map(this::mapToProductCardDTO)
                                 .collect(Collectors.toList());
+        }
+
+        @Override
+        public void deleteProduct(Long id) {
+                // TODO Auto-generated method stub
+                throw new UnsupportedOperationException("Unimplemented method 'deleteProduct'");
         }
 
 }

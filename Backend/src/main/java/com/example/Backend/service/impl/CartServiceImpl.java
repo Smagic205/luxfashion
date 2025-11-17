@@ -128,6 +128,7 @@ public class CartServiceImpl implements CartService {
                     dto.getQuantity(),
                     salePrice // Lưu giá tại thời điểm mua
             );
+            cart.getCartDetails().add(newDetail); // Thêm detail vào list của cart
             cartDetailRepository.save(newDetail);
         }
 

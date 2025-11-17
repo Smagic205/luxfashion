@@ -48,7 +48,11 @@ public class ProductResponseDTO {
                     .map(Image::getUrl)
                     .collect(Collectors.toList());
         }
-
+        if (product.getVariants() != null) {
+            this.variants = product.getVariants().stream()
+                    .map(VariantResponseDTO::new)
+                    .collect(Collectors.toList());
+        }
         // --- LOGIC MAP MỚI ---
         if (product.getPromotionDetails() != null) {
             this.promotions = product.getPromotionDetails().stream()
