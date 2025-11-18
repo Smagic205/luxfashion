@@ -193,4 +193,23 @@ public class UserServiceImpl implements UserService {
         User savedUser = userRepository.save(newUser);
         return mapToUserResponseDTO(savedUser);
     }
+
+    @Override
+    @Transactional
+    public UserResponseDTO updateMyProfile(Long userId, UserCreateRequestDTO request) {
+        // 1. Tìm user
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new ResourceNotFoundException("User not found with id: " + userId));
+
+        // 2. Cập nhật các trường cho phép
+        user.setFullName(request.getFullName());
+        user.setAddress(request.getAddress());
+        user.setPhoneNumber(request.getPhoneNumber());
+
+        // 3. Lưu lại
+        User updatedUser = userRepository.save(user);
+
+        // 4. Trả về DTO
+        return mapToUserResponseDTO(updatedUser);
+    }
 }
